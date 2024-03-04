@@ -1,4 +1,4 @@
-package Players;
+package Blockade.Players;
 
 public class Playable extends Player{
 	private String colour;
