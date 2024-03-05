@@ -138,11 +138,9 @@ public class Board{
 					current.setCurrentCoordinates(new int[]{newX, newY});
 					board[newX][newY] = current;
 					board[x][y] = new Playable(x, y, "White");
-					Scanner scanner = new Scanner(System.in);
 					System.out.println("Where Would you like to move the block?");
-					int blockX = scanner.nextInt();
-					int blockY = scanner.nextInt();
-					moveBlock(block, blockX, blockY);
+					int[] blockXY = messagesForInput();
+					moveBlock(block, blockXY[0], blockXY[1] -1); // sub one for y due to structure of the display
 					break;
 				default:
 					int destinationHomeX = destination.getOriginalX();
@@ -285,6 +283,7 @@ public class Board{
 				i--;
 			}
 		}
+		input.close();
 
 	}
 
@@ -295,7 +294,6 @@ public class Board{
 		int roll = rollDice();
 		boolean change = false;
 		while(!finished){
-			Scanner keyboard = new Scanner(System.in);
 			if(roller == 5){
 				roller = 0;
 			}
@@ -305,20 +303,11 @@ public class Board{
 			}
 			String col = colour(colourOrder[roller]);
                         System.out.println(col + this.gamePlayers[roller] + " has to move " + roll + " spaces");
-                        System.out.println("Which piece do you want to move? Y axis first!");
-                        String toMoveYStr = keyboard.nextLine(); // this will become the vertical position
-			System.out.println("Which piece do you want to move? X axis second!");
-                        String toMoveXStr = keyboard.nextLine(); // this will become the horizontal position
-                        int toMoveX = alphabet.indexOf(toMoveYStr); // since they input a letter findind the position of the character in the alphabet will convert to an int
-			int toMoveY = Integer.parseInt(toMoveXStr);
-			if((toMoveX > 0 || toMoveX < size) && (toMoveY - 1 > 0 || toMoveY - 1 < size)){
-				if(board[toMoveX][toMoveY - 1].getColour().equals(colourOrder[roller])){
-				 	System.out.println("Where would you like to move to? Same Structure as before");
-					String moveToYStr = keyboard.nextLine();
-					String moveToXStr = keyboard.nextLine();
-					int moveToX = alphabet.indexOf(moveToYStr);
-					int moveToY = Integer.parseInt(moveToXStr);
-					boolean turn = movePlayer(toMoveX, toMoveY - 1, moveToX, moveToY - 1, colourOrder[roller]);
+			int[] xY = messagesForInput(); // repeated code become a method returns the input X and Y coordinates
+			if((xY[0] > 0 || xY[0] < size) && (xY[1] - 1 > 0 || xY[1] - 1 < size)){
+				if(board[xY[0]][xY[1] - 1].getColour().equals(colourOrder[roller])){
+					int[] newXY = messagesForInput();
+					boolean turn = movePlayer(xY[0], xY[1] - 1, newXY[0], newXY[1] - 1, colourOrder[roller]); // X coordinate stays the same as it is because it comes from a string of letters, sub 1 from y because of the strucutre of the display
 					if(turn){
 						this.printBoard();
 						if(this.hasWinner()){
@@ -331,7 +320,7 @@ public class Board{
 						continue;
 					}
 				}else{
-					System.out.println(board[toMoveX][toMoveY - 1].getColour() + " is not your team. You are team: " + colourOrder[roller]);
+					System.out.println(board[xY[0]][xY[1] - 1].getColour() + " is not your team. You are team: " + colourOrder[roller]);
 					roller--;
 				}
 				roller++;
@@ -339,11 +328,19 @@ public class Board{
 				System.out.println("Values are invalid");
 			}
 		}
-
-
-
 	}
 
+	private int[] messagesForInput(){
+		Scanner sc = new Scanner(System.in);
+		System.out.println("Which piece do you want to move? Y axis first!");
+                String toMoveYStr = sc.nextLine(); // this will become the vertical position
+                System.out.println("Which piece do you want to move? X axis second!");
+                String toMoveXStr = sc.nextLine(); // this will become the horizontal position
+                int toMoveX = alphabet.indexOf(toMoveYStr); // since they input a letter findind the position of the character in the alphabet will convert to an int
+                int toMoveY = Integer.parseInt(toMoveXStr);
+		sc.close();
+		return new int[]{toMoveX, toMoveY};
+	}
 
 	public void printBoard(){
 		String row = ConsoleColours.WHITE_UNDERLINED + " # | ";
@@ -399,7 +396,11 @@ public class Board{
 	}
 */
 	public static void main(String[] args){
-		Board b = new Board(args[0]); // initialising the game with a name
+		String gameName = "";
+		for(String arg : args){
+			gameName += arg + " ";
+		}
+		Board b = new Board(gameName); // initialising the game with a name
 		b.printBoard(); // printing board so we know what it looks like
 		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET);
 		Scanner keyboard = new Scanner(System.in); // asking for player names
@@ -419,6 +420,7 @@ public class Board{
 		while(!b.hasWinner()){
 			b.startGame();
 		}
+		keyboard.close();
 	}
 
 }
