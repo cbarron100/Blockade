@@ -43,7 +43,7 @@ public class Board{
 					}else if(x == 10 && (y == 2 || y == 14)) {
 						board[x][y] = new Playable(x, y, "White");
 					}else if(x == 12 && (y == 0 || y == 4 || y == 8 || y == 12 || y == 16)) {
-						board[x][y] = new Playable(x, y, "white");
+						board[x][y] = new Playable(x, y, "White");
 					}else if((x == 14 || x == 16) && (y == 2 || y == 6 || y == 10 || y == 14)) {
 						switch(y) {
 						case 2:
@@ -124,15 +124,14 @@ public class Board{
 					break;
 				case "Gold":
 					// Win situation
-					System.out.println("WOOOOHOOOOO!!!!!!!!");
-					System.out.println("YOU WIN!!");
 					//win positon set to the player
-					destination = current;
 					current.setCurrentCoordinates(new int[]{newX, newY});
 					board[newX][newY] = current;
 					//old position empty
 					board[x][y] = new Playable(x, y, "White");
-					winner = true;
+					this.winner = true;
+					System.out.println("WOOOOHOOOOO!!!!!!!!");
+                                        System.out.println("YOU WIN!!");
 					break;
 				case "Black":
 					Playable block = board[newX][newY];
@@ -164,6 +163,24 @@ public class Board{
 		}
 		return true; // move success
 
+	}
+
+
+	private String colour(String str){
+
+		switch(str){
+			case "Blue":
+				return ConsoleColours.BLUE;
+			case "Green":
+				return ConsoleColours.GREEN;
+			case "Red":
+				return ConsoleColours.RED;
+			case "Yellow":
+				return ConsoleColours.YELLOW;
+			default:
+				break;
+		}
+		return ConsoleColours.WHITE;
 	}
 
 	private void moveBlock(Playable block, int x, int y){
@@ -215,7 +232,7 @@ public class Board{
 
 
 	public boolean hasWinner(){
-		return winner;
+		return this.winner;
 	}
 	public String[] getPlayerNames(){
 		return this.gamePlayers;
@@ -286,15 +303,14 @@ public class Board{
 				roll = rollDice();
 				change = false;
 			}
-                        System.out.println(this.gamePlayers[roller] + " has to move " + roll + " spaces");
+			String col = colour(colourOrder[roller]);
+                        System.out.println(col + this.gamePlayers[roller] + " has to move " + roll + " spaces");
                         System.out.println("Which piece do you want to move? Y axis first!");
                         String toMoveYStr = keyboard.nextLine(); // this will become the vertical position
 			System.out.println("Which piece do you want to move? X axis second!");
                         String toMoveXStr = keyboard.nextLine(); // this will become the horizontal position
                         int toMoveX = alphabet.indexOf(toMoveYStr); // since they input a letter findind the position of the character in the alphabet will convert to an int
 			int toMoveY = Integer.parseInt(toMoveXStr);
-			System.out.println((toMoveX-1) + " " + toMoveY);
-			System.out.println(board[toMoveX][toMoveY - 1].getColour());
 			if((toMoveX > 0 || toMoveX < size) && (toMoveY - 1 > 0 || toMoveY - 1 < size)){
 				if(board[toMoveX][toMoveY - 1].getColour().equals(colourOrder[roller])){
 				 	System.out.println("Where would you like to move to? Same Structure as before");
@@ -305,6 +321,11 @@ public class Board{
 					boolean turn = movePlayer(toMoveX, toMoveY - 1, moveToX, moveToY - 1, colourOrder[roller]);
 					if(turn){
 						this.printBoard();
+						if(this.hasWinner()){
+							finished = true;
+							System.out.println(col + "WELL DONE " + this.gamePlayers[roller] + "!" + ConsoleColours.RESET);
+							break;
+						}
 						change = true;
 					}else{
 						continue;
