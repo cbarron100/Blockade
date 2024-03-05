@@ -1,4 +1,4 @@
-package Blockade.Players;
+package Players;
 
 public class Playable extends Player{
 	private String colour;
@@ -7,6 +7,11 @@ public class Playable extends Player{
 
 		this.colour = colour;
 	}
+
+	public void setColour(String colour){
+		this.colour = colour;
+	}
+
 
 	public String getColour(){
 		return this.colour;
