@@ -42,7 +42,7 @@ public class Board{
 						board[x][y] = new Playable(x, y, "White");
 					}else if(x == 10 && (y == 2 || y == 14)) {
 						board[x][y] = new Playable(x, y, "White");
-					}else if(x == 12 && (y == 0 || y == 4 || y == 8 || y == 12 || y ==16)) {
+					}else if(x == 12 && (y == 0 || y == 4 || y == 8 || y == 12 || y == 16)) {
 						board[x][y] = new Playable(x, y, "white");
 					}else if((x == 14 || x == 16) && (y == 2 || y == 6 || y == 10 || y == 14)) {
 						switch(y) {
@@ -149,7 +149,7 @@ public class Board{
 					int destinationHomeX = destination.getOriginalX();
 					int destinationHomeY = destination.getOriginalY();
 					board[destinationHomeX][destinationHomeY] = destination;
-					destination = current;
+					board[newX][newY] = current;
 					board[x][y] = new Playable(x, y, "White");
 
 
@@ -275,27 +275,42 @@ public class Board{
 		this.printBoard();
 		boolean finished = false; //winner qualifier
 		int roller = 0;
+		int roll = rollDice();
+		boolean change = false;
 		while(!finished){
 			Scanner keyboard = new Scanner(System.in);
 			if(roller == 5){
 				roller = 0;
 			}
-			int roll = rollDice();
+			if(change){
+				roll = rollDice();
+				change = false;
+			}
                         System.out.println(this.gamePlayers[roller] + " has to move " + roll + " spaces");
-                        System.out.println("Which piece do you want to move? X axis first!");
-                        int toMoveX = keyboard.nextInt();
-			System.out.println("Which piece do you want to move? Y axis second!");
-                        String toMoveYStr = keyboard.nextLine();
-                        int toMoveY = alphabet.indexOf(toMoveYStr);
-			if((toMoveX - 1 < 0 || toMoveX - 1 > size) && (toMoveY - 1 < 0 || toMoveY - 1 > size)){
-				if(board[toMoveX-1][toMoveY-1].getColour().equals(colourOrder[roller])){
-				 	System.out.println("Where would you like to move to?");
-					int moveToX = keyboard.nextInt();
+                        System.out.println("Which piece do you want to move? Y axis first!");
+                        String toMoveYStr = keyboard.nextLine(); // this will become the vertical position
+			System.out.println("Which piece do you want to move? X axis second!");
+                        String toMoveXStr = keyboard.nextLine(); // this will become the horizontal position
+                        int toMoveX = alphabet.indexOf(toMoveYStr); // since they input a letter findind the position of the character in the alphabet will convert to an int
+			int toMoveY = Integer.parseInt(toMoveXStr);
+			System.out.println((toMoveX-1) + " " + toMoveY);
+			System.out.println(board[toMoveX][toMoveY - 1].getColour());
+			if((toMoveX > 0 || toMoveX < size) && (toMoveY - 1 > 0 || toMoveY - 1 < size)){
+				if(board[toMoveX][toMoveY - 1].getColour().equals(colourOrder[roller])){
+				 	System.out.println("Where would you like to move to? Same Structure as before");
 					String moveToYStr = keyboard.nextLine();
-					int moveToY = alphabet.indexOf(moveToYStr);
-					movePlayer(toMoveX-1, toMoveY-1, moveToX-1, moveToY-1, colourOrder[roller]);
+					String moveToXStr = keyboard.nextLine();
+					int moveToX = alphabet.indexOf(moveToYStr);
+					int moveToY = Integer.parseInt(moveToXStr);
+					boolean turn = movePlayer(toMoveX, toMoveY - 1, moveToX, moveToY - 1, colourOrder[roller]);
+					if(turn){
+						this.printBoard();
+						change = true;
+					}else{
+						continue;
+					}
 				}else{
-					System.out.println("This is not your team. You are team: " + colourOrder[roller]);
+					System.out.println(board[toMoveX][toMoveY - 1].getColour() + " is not your team. You are team: " + colourOrder[roller]);
 					roller--;
 				}
 				roller++;
