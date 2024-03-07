@@ -13,6 +13,7 @@ public class Board{
 	private Random random = new Random();
 	public String alphabet = "abcdefghijklmnopqrstuvwxyz";
 	private Scanner keyboard = new Scanner(System.in);
+	private int[][] gates = new int[][]{{13, 2}, {13, 6}, {13, 10}, {13, 14}};
 /*
 	public enum contains{RED, BLUE, BLOCK, GREEN, YELLOW, EMPTY, NOTHING, GOAL};
 	private String[][] board = new String[size][size];
@@ -286,6 +287,69 @@ public class Board{
 
 	}
 
+
+	private ArrayList<Integer[]> checkFeasibleMoves(int x, int y, String colour, int roll, int[] previousPos, ArrayList<Integer[]> feasibleMoves){
+		if(roll == 0){ // have reached all of what we could do this turn
+			if(board[x][y].getColour().equals(colour)){
+				return feasibleMoves;
+			}else{
+				System.out.println("Current {x, y} " + x + ", " + y);
+				feasibleMoves.add(new Integer[]{x, y});
+				return feasibleMoves;
+			}
+		}
+		if(x == 0 || x == 16 || y == 0 || y == 16){
+			return feasibleMoves;
+		}else if(x > 13){//check if the player is above the village line
+			//check if there is a blockade in the way
+			int[] gatePos = findGatePosition(colour); //get gate positon and check the colour from help funtion
+			if(board[gatePos[0]][gatePos[1]].getColour().equals("Black")){ //using the return of the line above
+				return feasibleMoves;
+			}else{
+				return checkFeasibleMoves(gatePos[0], gatePos[1], colour, roll - 1, new int[]{x, y}, feasibleMoves); // this means that it is empty and we can move from this position
+			}										      // all moves from the village start from here
+		}else{
+		////check that roll isn't 0, has to be one because that would mean that this iteration is the last move
+
+		// we can pretty much move anywhere as long as it is on the board and it isn't our own team
+		// check 3 directions, we cannot go back on ourselves
+			if(x == previousPos[0] && y == previousPos[1]){
+				return feasibleMoves;
+			// check if the current coordinate is a block ( we can not move further in that direction if it is
+			}else if(board[x][y].getColour().equals("Black")){
+				return feasibleMoves;
+			}else{// check in all directions but because of the condition about the results of including previous steps is ignored
+				if(!board[x+1][y].getColour().equals(" ")){
+					checkFeasibleMoves(x+1, y, colour, roll - 1, new int[]{x, y}, feasibleMoves);
+				}else if(!board[x-1][y].getColour().equals(" ")){
+					checkFeasibleMoves(x-1, y, colour, roll - 1, new int[]{x, y}, feasibleMoves);
+				}else if(!board[x][y+1].getColour().equals(" ")){
+					checkFeasibleMoves(x, y+1, colour, roll - 1, new int[]{x, y}, feasibleMoves);
+				}else if(!board[x][y-1].getColour().equals(" ")){
+					checkFeasibleMoves(x, y-1, colour, roll - 1, new int[]{x, y}, feasibleMoves);
+				}
+			}
+		}
+		return feasibleMoves;
+	}
+
+
+	private int[] findGatePosition(String colour){ // should maybe throw an error here instead
+		switch(colour){
+			case "Blue":
+				return this.gates[0];
+			case "Green":
+				return this.gates[1];
+			case "Yellow":
+				return this.gates[2];
+			default:
+				return this.gates[3];
+
+		}
+
+
+	}
+
 	public void startGame(){
 		this.printBoard();
 		boolean finished = false; //winner qualifier
@@ -302,7 +366,16 @@ public class Board{
 			}
 			String col = colour(colourOrder[roller]);
                         System.out.println(col + this.gamePlayers[roller] + " has to move " + roll + " spaces");
-			int[] xY = messagesForInput(false); // repeated code become a method returns the input X and Y coordinates
+			int[] xY = messagesForInput(false); // repeated code become a method returns the input X and Y coordinates False = choosing moving player 
+							    // true = move to position
+			ArrayList<Integer[]> possibleMoves;
+			possibleMoves = checkFeasibleMoves(xY[0], xY[1], colourOrder[roller], roll, new int[2], new ArrayList<Integer[]>());
+			for (Integer[] move : possibleMoves) {
+    				for (Integer coordinate : move) {
+        				System.out.print(coordinate + " ");
+    				}
+    				System.out.println(); // Move to the next line after printing each move
+			}
 			if((xY[0] > 0 || xY[0] < size) && (xY[1] > 0 || xY[1] < size)){
 				if(board[xY[0]][xY[1]].getColour().equals(colourOrder[roller])){
 					int[] newXY = messagesForInput(true);
