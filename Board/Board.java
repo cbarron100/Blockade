@@ -12,6 +12,7 @@ public class Board{
 	private Playable[][] board = new Playable[size][size];
 	private Random random = new Random();
 	public String alphabet = "abcdefghijklmnopqrstuvwxyz";
+	private Scanner keyboard = new Scanner(System.in);
 /*
 	public enum contains{RED, BLUE, BLOCK, GREEN, YELLOW, EMPTY, NOTHING, GOAL};
 	private String[][] board = new String[size][size];
@@ -31,64 +32,64 @@ public class Board{
 			for(int y = 0; y < size; y++) {
 				if(x%2 == 0) {
 					if(x == 0 && y == 8) {
-						board[x][y] = new Playable(x, y, "Gold");
+						this.board[x][y] = new Playable(x, y, "Gold");
 					}else if(x == 2 && (y == 0 || y == 16)) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if(x == 4 && y == 8) {
-						board[x][y] = new Playable(x, y, "Black");
+						this.board[x][y] = new Playable(x, y, "Black");
 					}else if(x == 6 && (y == 6 || y == 10)) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if(x == 8 && (y == 4 || y == 12)) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if(x == 10 && (y == 2 || y == 14)) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if(x == 12 && (y == 0 || y == 4 || y == 8 || y == 12 || y == 16)) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if((x == 14 || x == 16) && (y == 2 || y == 6 || y == 10 || y == 14)) {
 						switch(y) {
 						case 2:
-							board[x][y] = new Playable(x, y, "Blue");
+							this.board[x][y] = new Playable(x, y, "Blue");
 							break;
 						case 6:
-							board[x][y] = new Playable(x, y, "Green");
+							this.board[x][y] = new Playable(x, y, "Green");
 							break;
 						case 10:
-							board[x][y] = new Playable(x, y, "Yellow");
+							this.board[x][y] = new Playable(x, y, "Yellow");
 							break;
 						case 14:
-							board[x][y] = new Playable(x, y, "Red");
+							this.board[x][y] = new Playable(x, y, "Red");
 							break;
 						}
 					}else{
-						board[x][y] = new Playable(x, y, " ");
+						this.board[x][y] = new Playable(x, y, " ");
 					}
 				}else {
 					if(x == 1 || x == 3) {
-						board[x][y] = (y == 8) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
+						this.board[x][y] = (y == 8) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
 					}else if(x == 5 && (y >= 6 && y <= 10)) {
-						board[x][y] = (y == 8) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
+						this.board[x][y] = (y == 8) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
 					}else if(x == 7 && (y >= 4 && y <= 12)) {
-						board[x][y] = (y == 6 || y == 10) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
+						this.board[x][y] = (y == 6 || y == 10) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
 					}else if(x == 9 && (y >= 2 && y <= 14)) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if(x == 11) {
-						board[x][y] = (y%4 == 0) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
+						this.board[x][y] = (y%4 == 0) ? new Playable(x, y, "Black") : new Playable(x, y, "White");
 					}else if(x == 13) {
-						board[x][y] = new Playable(x, y, "White");
+						this.board[x][y] = new Playable(x, y, "White");
 					}else if(x == 15) {
 						if(y >= 1 && y <= 3) {
-							board[x][y] = new Playable(x, y, "Blue");
+							this.board[x][y] = new Playable(x, y, "Blue");
 						}else if(y >= 5 && y <= 7) {
-							board[x][y] = new Playable(x, y, "Green");
+							this.board[x][y] = new Playable(x, y, "Green");
 						}else if(y >= 9 && y <= 11) {
-							board[x][y] = new Playable(x, y, "Yellow");
+							this.board[x][y] = new Playable(x, y, "Yellow");
 						}else if(y >= 13 && y <= 15) {
-							board[x][y] = new Playable(x, y, "Red");
+							this.board[x][y] = new Playable(x, y, "Red");
 						}else{
-							board[x][y] = new Playable(x, y, " ");
+							this.board[x][y] = new Playable(x, y, " ");
 						}
 					}else {
-						board[x][y] = new Playable(x, y, " ");
+						this.board[x][y] = new Playable(x, y, " ");
 					}
 				}
 			}
@@ -139,8 +140,8 @@ public class Board{
 					board[newX][newY] = current;
 					board[x][y] = new Playable(x, y, "White");
 					System.out.println("Where Would you like to move the block?");
-					int[] blockXY = messagesForInput();
-					moveBlock(block, blockXY[0], blockXY[1] -1); // sub one for y due to structure of the display
+					int[] blockXY = messagesForInput(true);
+					moveBlock(block, blockXY[0], blockXY[1]); // sub one for y due to structure of the display
 					break;
 				default:
 					int destinationHomeX = destination.getOriginalX();
@@ -254,7 +255,6 @@ public class Board{
 
 	public void chooseColours(){
 		int person = 0;
-		Scanner input = new Scanner(System.in);
 		System.out.println("To choose the colour you have to either type a letter or the number corresponding to the colour.");
 		System.out.println("Blue: B or 1");
 		System.out.println("Green: G or 2");
@@ -264,7 +264,7 @@ public class Board{
 		for(int i = 0; i < this.gamePlayers.length; i++){
 			boolean chosen = false;
 			System.out.println(this.gamePlayers[i] + " please choose a team.");
-			String choice = input.nextLine();
+			String choice = this.keyboard.next().toUpperCase();
 			if(choice.length() == 1){
 				if(choice.equals("B") || choice.equals("1")){
 					colourOrder[i] = "Blue";
@@ -283,7 +283,6 @@ public class Board{
 				i--;
 			}
 		}
-		input.close();
 
 	}
 
@@ -294,7 +293,7 @@ public class Board{
 		int roll = rollDice();
 		boolean change = false;
 		while(!finished){
-			if(roller == 5){
+			if(roller == 4){
 				roller = 0;
 			}
 			if(change){
@@ -303,11 +302,11 @@ public class Board{
 			}
 			String col = colour(colourOrder[roller]);
                         System.out.println(col + this.gamePlayers[roller] + " has to move " + roll + " spaces");
-			int[] xY = messagesForInput(); // repeated code become a method returns the input X and Y coordinates
-			if((xY[0] > 0 || xY[0] < size) && (xY[1] - 1 > 0 || xY[1] - 1 < size)){
-				if(board[xY[0]][xY[1] - 1].getColour().equals(colourOrder[roller])){
-					int[] newXY = messagesForInput();
-					boolean turn = movePlayer(xY[0], xY[1] - 1, newXY[0], newXY[1] - 1, colourOrder[roller]); // X coordinate stays the same as it is because it comes from a string of letters, sub 1 from y because of the strucutre of the display
+			int[] xY = messagesForInput(false); // repeated code become a method returns the input X and Y coordinates
+			if((xY[0] > 0 || xY[0] < size) && (xY[1] > 0 || xY[1] < size)){
+				if(board[xY[0]][xY[1]].getColour().equals(colourOrder[roller])){
+					int[] newXY = messagesForInput(true);
+					boolean turn = movePlayer(xY[0], xY[1], newXY[0], newXY[1], colourOrder[roller]); // X coordinate stays the same as it is because it comes from a string of letters, sub 1 from y because of the strucutre of the display
 					if(turn){
 						this.printBoard();
 						if(this.hasWinner()){
@@ -316,11 +315,14 @@ public class Board{
 							break;
 						}
 						change = true;
+						if(roll == 6){
+							roller--;
+						}
 					}else{
 						continue;
 					}
 				}else{
-					System.out.println(board[xY[0]][xY[1] - 1].getColour() + " is not your team. You are team: " + colourOrder[roller]);
+					System.out.println(board[xY[0]][xY[1]].getColour() + " is not your team. You are team: " + colourOrder[roller]);
 					roller--;
 				}
 				roller++;
@@ -330,17 +332,38 @@ public class Board{
 		}
 	}
 
-	private int[] messagesForInput(){
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Which piece do you want to move? Y axis first!");
-                String toMoveYStr = sc.nextLine(); // this will become the vertical position
-                System.out.println("Which piece do you want to move? X axis second!");
-                String toMoveXStr = sc.nextLine(); // this will become the horizontal position
-                int toMoveX = alphabet.indexOf(toMoveYStr); // since they input a letter findind the position of the character in the alphabet will convert to an int
-                int toMoveY = Integer.parseInt(toMoveXStr);
-		sc.close();
-		return new int[]{toMoveX, toMoveY};
+	private int[] messagesForInput(boolean destination){
+			if(destination){
+				System.out.println("Where do you want to move the piece? Y axis first!");
+			}else{
+				System.out.println("Which piece do you want to move? Y axis first!");
+			}
+			System.out.flush(); // Flush the output buffer to ensure the message is immediately displayed
+	                String toMoveYStr = this.keyboard.next(); // this will become the vertical position
+			int toMoveX = alphabet.indexOf(toMoveYStr); // since they input a letter findind the position of the character in the alphabet will convert to an int
+			if(destination){
+				System.out.println("Where do you want to move the piece? X axis!");
+                        }else{
+                                System.out.println("Which piece do you want to move? X axis!");
+                        }
+	                System.out.flush(); // Flush the output buffer to ensure the message is immediately displayed
+			String toMoveXStr = this.keyboard.next(); // this will become the horizontal position
+	                int toMoveY = Integer.parseInt(toMoveXStr);
+		return new int[]{toMoveX, toMoveY-1};
 	}
+
+	public void closeScanner(){
+
+		this.keyboard.close();
+
+	}
+
+	public Scanner getScanner(){
+
+		return this.keyboard;
+
+	}
+
 
 	public void printBoard(){
 		String row = ConsoleColours.WHITE_UNDERLINED + " # | ";
@@ -402,13 +425,12 @@ public class Board{
 		}
 		Board b = new Board(gameName); // initialising the game with a name
 		b.printBoard(); // printing board so we know what it looks like
-		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET);
-		Scanner keyboard = new Scanner(System.in); // asking for player names
+		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET); // asking for player names
 		System.out.println("Who is going to play?");
-		String names1 = keyboard.nextLine();
-		String names2 = keyboard.nextLine();
-		String names3 = keyboard.nextLine();
-		String names4 = keyboard.nextLine();
+		String names1 = b.getScanner().nextLine();
+		String names2 = b.getScanner().nextLine();
+		String names3 = b.getScanner().nextLine();
+		String names4 = b.getScanner().nextLine();
 		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET);
 		System.out.println("Now, let's check the order!"); // setting order
 		b.setOrder(new String[]{names1, names2, names3, names4});
@@ -420,7 +442,7 @@ public class Board{
 		while(!b.hasWinner()){
 			b.startGame();
 		}
-		keyboard.close();
+		b.closeScanner();
 	}
 
 }
