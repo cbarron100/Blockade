@@ -101,7 +101,9 @@ public class Board{
 	public int getSize(){
 		return this.size;
 	}
-
+	public Playable[][] getBoard(){
+		return this.board;
+	}
 	public boolean movePlayer(int x, int y, int newX, int newY, String colour){
 		if(x == newX && y == newY){
 			return false;

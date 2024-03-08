@@ -21,6 +21,7 @@ public class GameDisplay{
 		frame.getContentPane().add(button1); //adds button to the content pane
 		frame.getContentPane().add(button2);
 		*/
+		frame.setBackground(Color.BLACK);
 		frame.add(new DrawingPanel(b));
 		frame.setVisible(true);
 
