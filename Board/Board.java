@@ -14,6 +14,7 @@ public class Board{
 	public String alphabet = "abcdefghijklmnopqrstuvwxyz";
 	private Scanner keyboard = new Scanner(System.in);
 	private int[][] gates = new int[][]{{13, 2}, {13, 6}, {13, 10}, {13, 14}};
+	private int turn;
 /*
 	public enum contains{RED, BLUE, BLOCK, GREEN, YELLOW, EMPTY, NOTHING, GOAL};
 	private String[][] board = new String[size][size];
@@ -97,14 +98,14 @@ public class Board{
 		}
 
 	}
-	
+
 	public int getSize(){
 		return this.size;
 	}
 	public Playable[][] getBoard(){
 		return this.board;
 	}
-	public boolean movePlayer(int x, int y, int newX, int newY, String colour){
+	public boolean movePlayer(int x, int y, int newX, int newY){
 		if(x == newX && y == newY){
 			return false;
 		}
@@ -117,7 +118,7 @@ public class Board{
 
 		Playable current = board[x][y];
 		Playable destination = board[newX][newY];
-		if(current.getColour().equals(colour) && !current.getColour().equals(destination.getColour())){
+		if(current.getColour().equals(colourOrder[turn]) && !current.getColour().equals(destination.getColour())){
 			switch(destination.getColour()){
 				case " ":
 					System.out.println("Cannot move here, not part of the board!");
@@ -167,7 +168,10 @@ public class Board{
 			}
 		}
 		return true; // move success
-
+		if(this.turn ==4){
+			this.turn = -1;
+		}
+		turn++;
 	}
 
 
@@ -201,38 +205,42 @@ public class Board{
 	}
 
 	public void setPlayerNames(String[] names){
-
 		this.gamePlayers = names;
+	}
 
+	public String[] getColourOrder(){
+		return this.colourOrder;
 	}
 
 
-	public void setOrder(String[] players){
+	public ArrayList<String> setOrder(String[] players){ // takes a list of players and their names
 		String[] newPlayerOrder = new String[4];
-		ArrayList<Integer> preOrder = new ArrayList<Integer>();
+		ArrayList<Integer> preOrder = new ArrayList<Integer>(); // keeps track of what values have been rolled before so players afterwards can roll again
 		int index = 0;
+		ArrayList<String> rollMessages = new ArrayList<>(); // we will use this for the messages in the gui for transparency purposes
 		while(index < players.length){
-			int roll = rollDice();
-			System.out.println(players[index] + " Rolled: " + roll);
+			int roll = rollDice(); // get the roll for this turn
+			rollMessages.add(players[index] + " Rolled: " + roll); // we will keep on adding messages each spot will be a new line
 			if(preOrder.contains(roll)){
-				System.out.println(players[index] + " has to roll again! The number was already rolled");
-				index--;
+				rollMessages.add(players[index] + " to roll again! Number taken!");
+				index--; // this player has to roll again
 
 			}else{
-				preOrder.add(roll);
+				preOrder.add(roll); // no one has that value so we can move on to the next player
 
 			}
 			index++;
 		}
-		ArrayList<Integer> order = new ArrayList<Integer>(preOrder);
-		Collections.sort(order, Collections.reverseOrder());
+		ArrayList<Integer> order = new ArrayList<Integer>(preOrder); // copy the order so we keep track of where it is
+		Collections.sort(order, Collections.reverseOrder());// place it in descending order
 		int newIndex = 0;
 		for(int i : order){
-			int preIndex = preOrder.indexOf(i);
-			newPlayerOrder[newIndex] = players[preIndex];
+			int preIndex = preOrder.indexOf(i); // now we find the person who has the corresponding number and positon in the old list
+			newPlayerOrder[newIndex] = players[preIndex]; //they take place in a new list in the rolling order
 			newIndex++;
 		}
-		setPlayerNames(newPlayerOrder);
+		setPlayerNames(newPlayerOrder); // reset the order
+		return rollMessages;
 	}
 
 
@@ -248,7 +256,22 @@ public class Board{
 		return Arrays.toString(this.gamePlayers);
 	}
 
+	public boolean selected(int x, int y){
+		if(isTurn(x, y)){
+			this.board[x][y].setColour("Pink");
+			return true;
+		}else{
+			return false;
+		}
+	}
 
+	public boolean isTurn(int x, int y){
+		return this.board[x][y].equals(colourOrder[turn]);
+	}
+
+	public String getColour(int x, int y){
+		return this.board[x][y].getColour();
+	}
 
 	public String printTeamOrder(){
 		return Arrays.toString(this.colourOrder);
@@ -258,7 +281,12 @@ public class Board{
 		return random.nextInt(6-1+1)+1;
 	}
 
+	public void setColourOrder(String[] colourOrder){
+		this.colourOrder = colourOrder;
+		this.turn = 0;
+	}
 
+/*
 	public void chooseColours(){
 		int person = 0;
 		System.out.println("To choose the colour you have to either type a letter or the number corresponding to the colour.");
@@ -291,7 +319,7 @@ public class Board{
 		}
 
 	}
-
+*/
 
 	private ArrayList<Integer[]> checkFeasibleMoves(int x, int y, String colour, int roll, int[] previousPos, ArrayList<Integer[]> feasibleMoves){
 		if(roll == 0){ // have reached all of what we could do this turn
@@ -303,13 +331,15 @@ public class Board{
 				return feasibleMoves;
 			}
 		}
-		if(x == 0 || x == 16 || y == 0 || y == 16){
+		if(x == 0 || x == 16 || y == 0 || y == 16){ // off the board
 			return feasibleMoves;
-		}else if(x > 13){//check if the player is above the village line
+		}else if(x > 13){//check if the player is in the village line
 			//check if there is a blockade in the way
-			int[] gatePos = findGatePosition(colour); //get gate positon and check the colour from help funtion
-			if(board[gatePos[0]][gatePos[1]].getColour().equals("Black")){ //using the return of the line above
-				return feasibleMoves;
+			int[] gatePos = findGatePosition(colour); //get gate positon using the colour of the player from help funtion
+			if(board[gatePos[0]][gatePos[1]].getColour().equals("Black") && roll > 1){ //using the return of the line above
+				return feasibleMoves; // means that they cannot move from the village
+			}else if(board[gatePos[0]][gatePos[1]].getColour().equals("Black") && roll == 1){
+				checkFeasibleMoves(gatePos[0], gatePos[1], colour, roll - 1, new int[]{x ,y}, feasibleMoves);// gate has black but the roll is one so we can land on the block
 			}else{
 				return checkFeasibleMoves(gatePos[0], gatePos[1], colour, roll - 1, new int[]{x, y}, feasibleMoves); // this means that it is empty and we can move from this position
 			}										      // all moves from the village start from here
@@ -320,7 +350,7 @@ public class Board{
 		// check 3 directions, we cannot go back on ourselves
 			if(x == previousPos[0] && y == previousPos[1]){
 				return feasibleMoves;
-			// check if the current coordinate is a block ( we can not move further in that direction if it is
+			// check if the current coordinate is a block ( we can not move further in that direction if it is)
 			}else if(board[x][y].getColour().equals("Black")){
 				return feasibleMoves;
 			}else{// check in all directions but because of the condition about the results of including previous steps is ignored
@@ -351,11 +381,14 @@ public class Board{
 				return this.gates[3];
 
 		}
-
-
 	}
 
-	public void startGame(){
+
+
+
+
+
+/*	public void startGame(){
 		this.printBoard();
 		boolean finished = false; //winner qualifier
 		int roller = 0;
@@ -384,7 +417,7 @@ public class Board{
 			if((xY[0] > 0 || xY[0] < size) && (xY[1] > 0 || xY[1] < size)){
 				if(board[xY[0]][xY[1]].getColour().equals(colourOrder[roller])){
 					int[] newXY = messagesForInput(true);
-					boolean turn = movePlayer(xY[0], xY[1], newXY[0], newXY[1], colourOrder[roller]); // X coordinate stays the same as it is because it comes from a string of letters, sub 1 from y because of the strucutre of the display
+					boolean turn = movePlayer(xY[0], xY[1], newXY[0], newXY[1]); // X coordinate stays the same as it is because it comes from a string of letters, sub 1 from y because of the strucutre of the display
 					if(turn){
 						this.printBoard();
 						if(this.hasWinner()){
@@ -431,15 +464,11 @@ public class Board{
 	}
 
 	public void closeScanner(){
-
 		this.keyboard.close();
-
 	}
 
 	public Scanner getScanner(){
-
 		return this.keyboard;
-
 	}
 
 
@@ -505,13 +534,13 @@ public class Board{
 		b.printBoard(); // printing board so we know what it looks like
 		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET); // asking for player names
 		System.out.println("Who is going to play?");
-		String names1 = b.getScanner().nextLine();
-		String names2 = b.getScanner().nextLine();
-		String names3 = b.getScanner().nextLine();
-		String names4 = b.getScanner().nextLine();
+		//String names1 = b.getScanner().nextLine();
+		//String names2 = b.getScanner().nextLine();
+		//String names3 = b.getScanner().nextLine();
+		//String names4 = b.getScanner().nextLine();
 		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET);
 		System.out.println("Now, let's check the order!"); // setting order
-		b.setOrder(new String[]{names1, names2, names3, names4});
+		//b.setOrder(new String[]{names1, names2, names3, names4});
 		System.out.println(ConsoleColours.WHITE_UNDERLINED + "                                                            " + ConsoleColours.RESET);
 		b.chooseColours(); //choose colours
 		System.out.println("The players and their teams in the game are : " + b.printPlayerNames() + " " + b.printTeamOrder());
