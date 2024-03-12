@@ -14,7 +14,8 @@ public class Board{
 	public String alphabet = "abcdefghijklmnopqrstuvwxyz";
 	private Scanner keyboard = new Scanner(System.in);
 	private int[][] gates = new int[][]{{13, 2}, {13, 6}, {13, 10}, {13, 14}};
-	private int turn;
+	private int turn = 0;
+	private String colourToMove; // this is to keep track of the colour that is about to move, we change the colour on the board to see which has been selected
 /*
 	public enum contains{RED, BLUE, BLOCK, GREEN, YELLOW, EMPTY, NOTHING, GOAL};
 	private String[][] board = new String[size][size];
@@ -115,10 +116,11 @@ public class Board{
          // check if other colour is there
          // check if block is there
          // check if empty
-
-		Playable current = board[x][y];
-		Playable destination = board[newX][newY];
-		if(current.getColour().equals(colourOrder[turn]) && !current.getColour().equals(destination.getColour())){
+		System.out.println("The person who is moving is " + this.gamePlayers[this.turn]);
+		System.out.println("The colour this person has is " + this.colourOrder[this.turn]);
+		Playable current = this.board[x][y];
+		Playable destination = this.board[newX][newY];
+		if(this.colourToMove.equals(this.colourOrder[this.turn]) && !current.getColour().equals(destination.getColour())){
 			switch(destination.getColour()){
 				case " ":
 					System.out.println("Cannot move here, not part of the board!");
@@ -127,6 +129,7 @@ public class Board{
 					//update the borad 
 					current.setCurrentCoordinates(new int[]{newX, newY});
 					board[newX][newY] = current;
+					board[newX][newY].setColour(this.colourToMove);
 					//clear old position
 					board[x][y] = new Playable(x, y, "White");
 					break;
@@ -145,33 +148,35 @@ public class Board{
 					Playable block = board[newX][newY];
 					current.setCurrentCoordinates(new int[]{newX, newY});
 					board[newX][newY] = current;
+					board[newX][newY].setColour(this.colourToMove);
 					board[x][y] = new Playable(x, y, "White");
 					System.out.println("Where Would you like to move the block?");
-					int[] blockXY = messagesForInput(true);
-					moveBlock(block, blockXY[0], blockXY[1]); // sub one for y due to structure of the display
+					//int[] blockXY = messagesForInput(true);
+					//moveBlock(block, blockXY[0], blockXY[1]); // sub one for y due to structure of the display
 					break;
 				default:
 					int destinationHomeX = destination.getOriginalX();
 					int destinationHomeY = destination.getOriginalY();
 					board[destinationHomeX][destinationHomeY] = destination;
 					board[newX][newY] = current;
+					board[newX][newY].setColour(this.colourToMove);
 					board[x][y] = new Playable(x, y, "White");
 
-
 			}
-
+			if(this.turn == 3){
+                                        this.turn = -1;
+                        }
+			turn++;
+                        return true; // move success
 		}else{
-			if(current.getColour().equals(destination.getColour())){
+			if(current.getColour().equals(destination.getColour())){ // player and destination are the same colour - you can't land on a team player
 				System.out.println("You already have a colour there");
+				return false;
 			}else{
 				System.out.println("You may have chosen the wrong positon.");
+				return false;
 			}
 		}
-		return true; // move success
-		if(this.turn ==4){
-			this.turn = -1;
-		}
-		turn++;
 	}
 
 
@@ -257,7 +262,9 @@ public class Board{
 	}
 
 	public boolean selected(int x, int y){
-		if(isTurn(x, y)){
+		boolean allows = this.isTurn(x, y);
+		if(allows){
+			this.colourToMove = this.board[x][y].getColour();
 			this.board[x][y].setColour("Pink");
 			return true;
 		}else{
@@ -266,7 +273,7 @@ public class Board{
 	}
 
 	public boolean isTurn(int x, int y){
-		return this.board[x][y].equals(colourOrder[turn]);
+		return this.board[x][y].getColour().equals(colourOrder[this.turn]);
 	}
 
 	public String getColour(int x, int y){
@@ -524,7 +531,7 @@ public class Board{
 	public boolean isEmpty(int x, int y){
 		continue;
 	}
-*/
+
 	public static void main(String[] args){
 		String gameName = "";
 		for(String arg : args){
@@ -551,5 +558,5 @@ public class Board{
 		}
 		b.closeScanner();
 	}
-
+*/
 }

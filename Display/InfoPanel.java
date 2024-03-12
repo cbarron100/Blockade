@@ -95,6 +95,8 @@ public class InfoPanel extends JPanel{
 						remove();
 						createButtons();
 						colourOrderJLabels();
+						System.out.println(Arrays.toString(b.getColourOrder()));
+						System.out.println(b.printPlayerNames());
                                 	}
 				}
                         });

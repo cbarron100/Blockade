@@ -13,8 +13,12 @@ import java.awt.Color;
 
 public class DrawingPanel extends JPanel implements MouseListener{
 	private Board b;
+	private boolean first = true; // for collecting the coordinates for moves(first and second set)
 	private double gap = 30;
-	private int firstX, secondX, firstY, secondY;
+	private int firstX = -1;
+	private int secondX = -1;
+	private int firstY = -1;
+	private int secondY = -1;// has to be initialised at this so the first conditon is never met before being pressed
 	public DrawingPanel(Board b){
 		this.addMouseListener(this);
 		this.b = b;
@@ -69,31 +73,60 @@ public class DrawingPanel extends JPanel implements MouseListener{
         @Override
         public void mouseClicked(MouseEvent e){
 	// invoked when it has been clicked (pressed and released) on a component
-		System.out.println("This has been pressed at: " + e.getX() + ", " + e.getY());
-		boolean first = true;
-		if(first == true){ //checks if it is the piece about to be moved
+		if(this.first == true){ //checks if it is the piece about to be moved
 			this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
 			this.firstY = (int) ((e.getX()/gap));
-			first = false;
+			this.first = false;
+			firstCoordinatesSelected(this.firstX, this.firstY);
 		}else{
 			this.secondX = (int) ((e.getY()/gap));
 			this.secondY = (int) ((e.getX()/gap));
-			first = true;
+			this.first = true;
+			secondCoordinatesSelected(this.secondX, this.secondY);
 		}
+	}
+
+	private void firstCoordinatesSelected(int x, int y){
 		if(this.firstX >= 0 && this.firstX < b.getSize() && this.firstY >= 0 && this.firstY < b.getSize()) { // Check bounds
-			if(this.secondX >= 0 && this.secondX < b.getSize() && this.secondY >= 0 && this.secondY < b.getSize()) { // Check bounds
-			        String col = this.b.getColour(this.firstX, this.firstY); // Swap y and x indices
-				if(!col.equals(" ")){//dont want to colour outside the allowed positions
-			        	System.out.println("This has been pressed at: " + this.firstX + ", " + this.firstY);
-			        	System.out.println("Colour selected is: " + col);
-					boolean allowed = this.b.selected(this.firstX, this.firstY);
-			        	if(allowed){
-						this.b.movePlayer(firstX, firstY, secondX, secondY);
-						repaint();
-					}
+                        String col = this.b.getColour(this.firstX, this.firstY); // Swap y and x indices
+                        if(!col.equals(" ")){//dont want to colour outside the allowed positions
+                                System.out.println("First set of positions at: " + this.firstX + ", " + this.firstY);
+                                System.out.println("Colour selected is: " + col);
+                                boolean allowed = this.b.selected(this.firstX, this.firstY);
+                                System.out.println(allowed);
+                                if(allowed){
+                                        repaint();
+                                }else{
+                                        this.first = true;
+                                        resetCoordinates();
+                                }
+                        }
+
+		}
+	}
+
+
+	private void secondCoordinatesSelected(int x, int y){
+		if(this.secondX >= 0 && this.secondX < b.getSize() && this.secondY >= 0 && this.secondY < b.getSize()){
+			String col = this.b.getColour(this.secondX, this.secondY);
+			if(!col.equals(" ")){
+				System.out.println("The moving position is " + this.secondX + ", " + this.secondY);
+				boolean playerMoved = this.b.movePlayer(this.firstX, this.firstY, this.secondX, this.secondY);
+				if(playerMoved){
+					resetCoordinates();
+					repaint();
 				}
 			}
 		}
+	}
+
+
+
+	private void resetCoordinates(){
+		this.firstX = -1;
+		this.secondX = -1;
+		this.firstY = -1;
+		this.secondY = -1;
 	}
 
         @Override
