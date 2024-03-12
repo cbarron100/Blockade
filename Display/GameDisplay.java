@@ -15,6 +15,7 @@ public class GameDisplay{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(250 + 17*30, 18*30);
 		frame.setLayout(null);
+		frame.setResizable(false);
 		DrawingPanel drawing = new DrawingPanel(b);
 		InfoPanel info = new InfoPanel(b);
 		drawing.setBounds(250, 0, 17*30, 17*30);

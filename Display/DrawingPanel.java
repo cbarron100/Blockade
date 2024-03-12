@@ -19,6 +19,9 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	private int secondX = -1;
 	private int firstY = -1;
 	private int secondY = -1;// has to be initialised at this so the first conditon is never met before being pressed
+	private int moveBlockX = -1;
+	private int moveBlockY = -1;
+
 	public DrawingPanel(Board b){
 		this.addMouseListener(this);
 		this.b = b;
@@ -82,23 +85,29 @@ public class DrawingPanel extends JPanel implements MouseListener{
 			this.secondX = (int) ((e.getY()/gap));
 			this.secondY = (int) ((e.getX()/gap));
 			this.first = true;
-			secondCoordinatesSelected(this.secondX, this.secondY);
+			secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
+			if(this.b.getBlockIsMoving() == true){
+				System.out.println("Choose positons to move to block to");
+				this.moveBlockX = (int) ((e.getY()/gap));
+	                        this.moveBlockY = (int) ((e.getX()/gap));
+        	                Playable block = this.b.getBlockMoving();
+				moveBlock(block, this.moveBlockX, this.moveBlockY);
+			}
 		}
 	}
 
 	private void firstCoordinatesSelected(int x, int y){
-		if(this.firstX >= 0 && this.firstX < b.getSize() && this.firstY >= 0 && this.firstY < b.getSize()) { // Check bounds
-                        String col = this.b.getColour(this.firstX, this.firstY); // Swap y and x indices
+		if(withInBoard(x, y)) { // Check bounds
+                        String col = this.b.getColour(x, y); // Swap y and x indices
                         if(!col.equals(" ")){//dont want to colour outside the allowed positions
-                                System.out.println("First set of positions at: " + this.firstX + ", " + this.firstY);
+                                System.out.println("First set of positions at: " + x + ", " + y);
                                 System.out.println("Colour selected is: " + col);
-                                boolean allowed = this.b.selected(this.firstX, this.firstY);
+                                boolean allowed = this.b.selected(x, y);
                                 System.out.println(allowed);
                                 if(allowed){
                                         repaint();
                                 }else{
                                         this.first = true;
-                                        resetCoordinates();
                                 }
                         }
 
@@ -106,14 +115,15 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	}
 
 
-	private void secondCoordinatesSelected(int x, int y){
-		if(this.secondX >= 0 && this.secondX < b.getSize() && this.secondY >= 0 && this.secondY < b.getSize()){
-			String col = this.b.getColour(this.secondX, this.secondY);
+	private void secondCoordinatesSelected(int x1, int y1, int x2, int y2){
+		if(withInBoard(x2, y2)){
+			String col = this.b.getColour(x2, y2);
 			if(!col.equals(" ")){
-				System.out.println("The moving position is " + this.secondX + ", " + this.secondY);
-				boolean playerMoved = this.b.movePlayer(this.firstX, this.firstY, this.secondX, this.secondY);
+				System.out.println("The moving position is " + x2 + ", " + y2);
+				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2);
 				if(playerMoved){
-					resetCoordinates();
+					resetCoordinatesSecond();
+					resetCoordinatesFirst();
 					repaint();
 				}
 			}
@@ -121,23 +131,41 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	}
 
 
+	private boolean withInBoard(int x, int y){
+		return (x >= 0 && x < b.getSize() && y >= 0 && y < b.getSize());
+	}
 
-	private void resetCoordinates(){
+	private void moveBlock(Playable block, int x, int y){
+		if(withInBoard(x, y)){
+			this.b.moveBlock(block, moveBlockX, moveBlockY);
+                	resetCoordinatesThird();
+			repaint();
+		}
+	}
+
+	private void resetCoordinatesFirst(){
 		this.firstX = -1;
 		this.secondX = -1;
+	}
+	private void resetCoordinatesSecond(){
 		this.firstY = -1;
 		this.secondY = -1;
 	}
+	private void resetCoordinatesThird(){
+		this.moveBlockX = -1;
+		this.moveBlockY = -1;
+	}
+
 
         @Override
         public void mousePressed(MouseEvent e){
 	//invoked when a mouse is pressed on a component (not released)
-        
+
 	}
         @Override
         public void mouseReleased(MouseEvent e){
 	// Invoked when a mouse button is released over a component
-        
+
 	}
 	@Override
         public void mouseEntered(MouseEvent e){

@@ -16,6 +16,10 @@ public class Board{
 	private int[][] gates = new int[][]{{13, 2}, {13, 6}, {13, 10}, {13, 14}};
 	private int turn = 0;
 	private String colourToMove; // this is to keep track of the colour that is about to move, we change the colour on the board to see which has been selected
+	private boolean blockToMove = false;
+	private Playable blockMoving;
+
+
 /*
 	public enum contains{RED, BLUE, BLOCK, GREEN, YELLOW, EMPTY, NOTHING, GOAL};
 	private String[][] board = new String[size][size];
@@ -145,12 +149,15 @@ public class Board{
                                         System.out.println("YOU WIN!!");
 					break;
 				case "Black":
-					Playable block = board[newX][newY];
+					this.blockMoving = board[newX][newY];
 					current.setCurrentCoordinates(new int[]{newX, newY});
 					board[newX][newY] = current;
 					board[newX][newY].setColour(this.colourToMove);
 					board[x][y] = new Playable(x, y, "White");
-					System.out.println("Where Would you like to move the block?");
+					this.blockToMove = true;
+
+
+					//System.out.println("Where Would you like to move the block?");
 					//int[] blockXY = messagesForInput(true);
 					//moveBlock(block, blockXY[0], blockXY[1]); // sub one for y due to structure of the display
 					break;
@@ -163,10 +170,9 @@ public class Board{
 					board[x][y] = new Playable(x, y, "White");
 
 			}
-			if(this.turn == 3){
-                                        this.turn = -1;
-                        }
-			turn++;
+			if(!this.blockToMove){
+				nextTurn();
+			}
                         return true; // move success
 		}else{
 			if(current.getColour().equals(destination.getColour())){ // player and destination are the same colour - you can't land on a team player
@@ -197,12 +203,15 @@ public class Board{
 		return ConsoleColours.WHITE;
 	}
 
-	private void moveBlock(Playable block, int x, int y){
+	public void moveBlock(Playable block, int x, int y){
 		int prevX = block.getCurrentX();
 		int prevY = block.getCurrentY();
 		if(board[x][y].getColour().equals("White")){
+			block.setCurrentCoordinates(new int[]{x, y});
 			board[x][y] = block;
-			board[x][y].setCurrentCoordinates(new int[]{x, y});
+			nextTurn();
+			this.blockToMove = false;
+			this.blockMoving = null;
 		}else{
 			System.out.println("Cannot place the block there!");
 		}
@@ -217,6 +226,21 @@ public class Board{
 		return this.colourOrder;
 	}
 
+	public boolean getBlockIsMoving(){
+		return this.blockToMove;
+	}
+
+	public Playable getBlockMoving(){
+		return this.blockMoving;
+	}
+
+
+	public void nextTurn(){
+		if(this.turn == 3){
+			this.turn = 0;
+		}
+		this.turn++;
+	}
 
 	public ArrayList<String> setOrder(String[] players){ // takes a list of players and their names
 		String[] newPlayerOrder = new String[4];
