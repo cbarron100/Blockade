@@ -143,16 +143,21 @@ public class InfoPanel extends JPanel{
 		int startY = 200;
 		// create buttons
 		JButton dice = new JButton("Roll Dice");
-		JButton select = new JButton("Continue");
-		JButton deSelect = new JButton("Change");
+		JButton select = new JButton("Back");
+		JButton deSelect = new JButton("Skip");
+		//Label to show the dice roll
+		JLabel diceRoll = new JLabel("");
+		diceRoll.setFont(new Font("Arial", Font.BOLD, 12));
+		JLabel skipTurn = new JLabel("");
+		skipTurn.setFont(new Font("Arial", Font.BOLD, 12));
 		//set focus
-		dice.setFocusable(true);
+		dice.setFocusable(false);
 		select.setFocusable(false);
-		deSelect.setFocusable(true);
+		deSelect.setFocusable(false);
 		//set tool tip
 		dice.setToolTipText("Roll Dice");
-		select.setToolTipText("Select piece");
-		deSelect.setToolTipText("Change selected piece");
+		select.setToolTipText("Return to previous state");
+		deSelect.setToolTipText("Skip Turn");
 		// set fonts
 		dice.setFont(new Font("Arial", Font.BOLD, 10));
 		select.setFont(new Font("Arial", Font.BOLD, 10));
@@ -165,7 +170,8 @@ public class InfoPanel extends JPanel{
 		dice.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				System.out.println(b.rollDice());
+				diceRoll.setText(b.getPlayerTurn() + " rolled: " + b.rollDice());
+				skipTurn.setText("");
 			}
 
 		});
@@ -180,7 +186,8 @@ public class InfoPanel extends JPanel{
 		deSelect.addActionListener(new ActionListener(){
                         @Override
                         public void actionPerformed(ActionEvent e){
-                                System.out.println("Deselect player");
+                                skipTurn.setText(b.getPlayerTurn() + " Skipped");
+				b.nextTurn();
                         }
 
                 });
@@ -188,10 +195,13 @@ public class InfoPanel extends JPanel{
 		dice.setBounds(startX, startY, width, height);
 		select.setBounds(startX+width+10, startY, width, height);
 		deSelect.setBounds(startX+(width*2)+20, startY, width, height);
-
+		diceRoll.setBounds(startX, startY + height + 10, width*2, height); // label to display dice roll
+		skipTurn.setBounds(startX, startY + height + 10*2, width*2, height); // shows who has skipped and who hasn't
 		//add to the panel
 		this.add(dice);
 		this.add(select);
 		this.add(deSelect);
+		this.add(diceRoll);
+		this.add(skipTurn);
 	}
 }

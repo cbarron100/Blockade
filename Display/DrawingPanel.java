@@ -21,7 +21,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	private int secondY = -1;// has to be initialised at this so the first conditon is never met before being pressed
 	private int moveBlockX = -1;
 	private int moveBlockY = -1;
-
+	private int clickNumber = 0;
 	public DrawingPanel(Board b){
 		this.addMouseListener(this);
 		this.b = b;
@@ -76,34 +76,41 @@ public class DrawingPanel extends JPanel implements MouseListener{
         @Override
         public void mouseClicked(MouseEvent e){
 	// invoked when it has been clicked (pressed and released) on a component
-		if(this.first == true){ //checks if it is the piece about to be moved
+		System.out.println(this.b.printPlayerNames() + ". Turn: " + this.b.getTurn());
+		if(this.first){ //checks if it is the piece about to be moved
 			this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
 			this.firstY = (int) ((e.getX()/gap));
 			this.first = false;
 			firstCoordinatesSelected(this.firstX, this.firstY);
-		}else{
+		}else if(this.b.getBlockIsMoving()){
+			System.out.println("Block is moving: " + this.b.getBlockIsMoving());
+                        if(this.moveBlockX == -1 && this.moveBlockY == -1){
+                                this.moveBlockX = (int) ((e.getY()/gap));
+                                this.moveBlockY = (int) ((e.getX()/gap));
+                                System.out.println("Chosen positons to move to block to: " + this.moveBlockX + ", " + this.moveBlockY);
+                                Playable block = this.b.getBlockMoving();
+                                moveBlock(block, this.moveBlockX, this.moveBlockY);
+				this.first = true;
+                        }
+                }else{
 			this.secondX = (int) ((e.getY()/gap));
 			this.secondY = (int) ((e.getX()/gap));
-			this.first = true;
 			secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
-			if(this.b.getBlockIsMoving() == true){
-				System.out.println("Choose positons to move to block to");
-				this.moveBlockX = (int) ((e.getY()/gap));
-	                        this.moveBlockY = (int) ((e.getX()/gap));
-        	                Playable block = this.b.getBlockMoving();
-				moveBlock(block, this.moveBlockX, this.moveBlockY);
+			if(!this.b.getBlockIsMoving()){
+				this.first = true;
+				this.b.nextTurn();
 			}
 		}
 	}
 
 	private void firstCoordinatesSelected(int x, int y){
 		if(withInBoard(x, y)) { // Check bounds
-                        String col = this.b.getColour(x, y); // Swap y and x indices
-                        if(!col.equals(" ")){//dont want to colour outside the allowed positions
+                        String col = this.b.getColour(x, y);
+			if(!col.equals(" ")){//dont want to colour outside the allowed positions
                                 System.out.println("First set of positions at: " + x + ", " + y);
                                 System.out.println("Colour selected is: " + col);
                                 boolean allowed = this.b.selected(x, y);
-                                System.out.println(allowed);
+                                System.out.println("Positon for the piece allowed:" + allowed);
                                 if(allowed){
                                         repaint();
                                 }else{
@@ -122,10 +129,12 @@ public class DrawingPanel extends JPanel implements MouseListener{
 				System.out.println("The moving position is " + x2 + ", " + y2);
 				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2);
 				if(playerMoved){
-					resetCoordinatesSecond();
-					resetCoordinatesFirst();
 					repaint();
+				}else{
+					this.first = false;
 				}
+				resetCoordinatesFirst();
+				resetCoordinatesSecond();
 			}
 		}
 	}
@@ -137,7 +146,8 @@ public class DrawingPanel extends JPanel implements MouseListener{
 
 	private void moveBlock(Playable block, int x, int y){
 		if(withInBoard(x, y)){
-			this.b.moveBlock(block, moveBlockX, moveBlockY);
+			this.b.moveBlock(block, x, y);
+			this.b.nextTurn();
                 	resetCoordinatesThird();
 			repaint();
 		}

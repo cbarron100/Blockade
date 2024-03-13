@@ -10,6 +10,7 @@ public class Board{
 	private String[] gamePlayers = new String[4];
 	private String[] colourOrder = new String[4];
 	private Playable[][] board = new Playable[size][size];
+	private Playable[][] previousState = new Playable[size][size];
 	private Random random = new Random();
 	public String alphabet = "abcdefghijklmnopqrstuvwxyz";
 	private Scanner keyboard = new Scanner(System.in);
@@ -18,6 +19,7 @@ public class Board{
 	private String colourToMove; // this is to keep track of the colour that is about to move, we change the colour on the board to see which has been selected
 	private boolean blockToMove = false;
 	private Playable blockMoving;
+	private int rolledNumber; // keeping track of rolled number just in case a 6 is rolled
 
 
 /*
@@ -101,7 +103,7 @@ public class Board{
 				}
 			}
 		}
-
+		setPreviousGameStateToCurrent();
 	}
 
 	public int getSize(){
@@ -125,6 +127,7 @@ public class Board{
 		Playable current = this.board[x][y];
 		Playable destination = this.board[newX][newY];
 		if(this.colourToMove.equals(this.colourOrder[this.turn]) && !current.getColour().equals(destination.getColour())){
+			setPreviousGameStateToCurrent();
 			switch(destination.getColour()){
 				case " ":
 					System.out.println("Cannot move here, not part of the board!");
@@ -170,9 +173,6 @@ public class Board{
 					board[x][y] = new Playable(x, y, "White");
 
 			}
-			if(!this.blockToMove){
-				nextTurn();
-			}
                         return true; // move success
 		}else{
 			if(current.getColour().equals(destination.getColour())){ // player and destination are the same colour - you can't land on a team player
@@ -185,6 +185,13 @@ public class Board{
 		}
 	}
 
+	private void setPreviousGameStateToCurrent(){
+		 this.previousState = this.board;
+	}
+
+	public void returnToPrevious(){
+		this.board = this.previousState;
+	}
 
 	private String colour(String str){
 
@@ -206,10 +213,12 @@ public class Board{
 	public void moveBlock(Playable block, int x, int y){
 		int prevX = block.getCurrentX();
 		int prevY = block.getCurrentY();
+		System.out.println("Previous coordinates: " + prevX + ", " + prevY);
+		System.out.println("Colour block to move to is " + board[x][y].getColour());
+		System.out.println("Block is moving to: " + x + ", " + y);
 		if(board[x][y].getColour().equals("White")){
 			block.setCurrentCoordinates(new int[]{x, y});
 			board[x][y] = block;
-			nextTurn();
 			this.blockToMove = false;
 			this.blockMoving = null;
 		}else{
@@ -236,8 +245,11 @@ public class Board{
 
 
 	public void nextTurn(){
+		if(this.rolledNumber == 6){
+                        this.turn--;
+                }
 		if(this.turn == 3){
-			this.turn = 0;
+			this.turn = -1;
 		}
 		this.turn++;
 	}
@@ -280,6 +292,9 @@ public class Board{
 		return this.gamePlayers;
 	}
 
+	public int getTurn(){
+		return this.turn;
+	}
 
 	public String printPlayerNames(){
 		return Arrays.toString(this.gamePlayers);
@@ -309,7 +324,11 @@ public class Board{
 	}
 
 	public int rollDice(){
-		return random.nextInt(6-1+1)+1;
+		this.rolledNumber = random.nextInt(6-1+1)+1;
+		return this.rolledNumber;
+	}
+	public String getPlayerTurn(){
+		return this.gamePlayers[this.turn];
 	}
 
 	public void setColourOrder(String[] colourOrder){
