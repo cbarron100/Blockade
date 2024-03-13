@@ -12,6 +12,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.*;
+import javax.swing.JOptionPane;
 public class InfoPanel extends JPanel{
 
 
@@ -22,14 +23,15 @@ public class InfoPanel extends JPanel{
 		this.b = b;
 		this.setBackground(Color.CYAN);
 		this.setLayout(null);
-		createTextFieldsNames();
 	}
 
 
 
 
-
-	public void createTextFieldsNames(){
+/*
+	public void createPopUpsForNames(){
+		String name = JOptionPane.showInputDialog(this, "What is your name?", null);
+	}
 		for(int i = 0; i < 4; i++){
 			JTextField jt = new JTextField(10);
 			JLabel label = new JLabel("");
@@ -61,8 +63,8 @@ public class InfoPanel extends JPanel{
 			this.add(label);
 			this.add(jt);
 		}
-        }
-
+		*/
+/*
 	 public void createTextFieldsColours(String[] nameOrder){
                 for(int i = 0; i < 4; i++){
 			String name = nameOrder[i];
@@ -105,7 +107,7 @@ public class InfoPanel extends JPanel{
                 }
 		this.repaint();
         }
-
+*/
 
 	public void remove(){
 		this.removeAll();

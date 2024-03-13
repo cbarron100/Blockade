@@ -4,7 +4,7 @@ import java.util.*;
 import Board.Board;
 import javax.swing.*;
 import java.awt.Color;
-
+import javax.swing.JOptionPane;
 public class GameDisplay{
 
 	private static int size = 700;
@@ -12,6 +12,8 @@ public class GameDisplay{
 	public static void main(String[] args){
 		Board b = new Board("Game");
 		JFrame frame = new JFrame(); // initialise the JFrame with the name as the input
+		int id = b.getPlayerID();
+		frame.setTitle("Barricade Game #" + id);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(250 + 17*30, 18*30);
 		frame.setLayout(null);
@@ -27,11 +29,19 @@ public class GameDisplay{
 		frame.getContentPane().add(button1); //adds button to the content pane
 		frame.getContentPane().add(button2);
 		*/
-		frame.setBackground(Color.BLACK);
 		frame.add(info);
 		frame.add(drawing);
 		frame.setVisible(true);
-
+		String name = JOptionPane.showInputDialog(frame, "What is your name?", null);
+		b.connectToServer();
+		if(!name.equals("") && b.canChooseColours()){
+			b.setBoardOwner(name);
+			String colourChoice = JOptionPane.showInputDialog(frame, "What colour do you want?", null);
+			System.out.println(name + " chose the colour " + colourChoice);
+			if(!colourChoice.equals(null)){
+				drawing.repaint();
+			}
+		}
 
 	}
 }
