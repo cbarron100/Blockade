@@ -57,7 +57,7 @@ public class GameDisplay{
 		info.addAllParts();
 		boolean mouseEn = b.mouseEnabled();
 		while(true){
-			System.out.println("Allowed to move: " + !mouseEn);
+			System.out.println("Allowed to move: " + mouseEn);
 			drawing.enableMouse(mouseEn);
 			if(mouseEn){
 				System.out.println("Find away to disable everyone else's container");
