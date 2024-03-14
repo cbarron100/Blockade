@@ -1,4 +1,5 @@
 package Display;
+
 import java.awt.Dimension;
 import Board.Board;
 import Players.*;
@@ -25,7 +26,13 @@ public class InfoPanel extends JPanel{
 		this.setLayout(null);
 	}
 
-
+	public void addAllParts(){
+		names = b.getPlayerNames();
+		colourOrder = b.getColourOrder();
+		colourOrderJLabels();
+		createButtons();
+		this.repaint();
+	}
 
 
 /*
@@ -122,19 +129,6 @@ public class InfoPanel extends JPanel{
 			jl.setBounds(15, 15 + (i * 20), 150, 17);
 			this.add(jl);
 		}
-	}
-
-
-	public void rollingOrderInformation(ArrayList<String> messages){
-		int i = 1;
-		for(String message : messages){
-			JLabel jl = new JLabel(message);
-			jl.setFont(new Font("Arial", Font.BOLD, 10));
-                        jl.setBounds(15, 250 + (i * 15), 200, 24);
-			this.add(jl);
-			i++;
-		}
-		this.repaint();
 	}
 
 

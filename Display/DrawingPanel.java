@@ -22,6 +22,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	private int moveBlockX = -1;
 	private int moveBlockY = -1;
 	private int clickNumber = 0;
+	private boolean mouseEnabled = false;
 	public DrawingPanel(Board b){
 		this.addMouseListener(this);
 		this.b = b;
@@ -72,47 +73,55 @@ public class DrawingPanel extends JPanel implements MouseListener{
 		}
 
 	}
-
+	public boolean enableMouse(boolean en){
+		mouseEnabled = en;
+		System.out.println("Mouse enabled from Drawing Panel: " + en);
+		return mouseEnabled;
+	}
         @Override
         public void mouseClicked(MouseEvent e){
 	// invoked when it has been clicked (pressed and released) on a component
-		System.out.println(this.b.printPlayerNames() + ". Turn: " + this.b.getTurn());
-		if(this.first){ //checks if it is the piece about to be moved
-			this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
-			this.firstY = (int) ((e.getX()/gap));
-			this.first = false;
-			firstCoordinatesSelected(this.firstX, this.firstY);
-		}else if(this.b.getBlockIsMoving()){
-			System.out.println("Block is moving: " + this.b.getBlockIsMoving());
-                        if(this.moveBlockX == -1 && this.moveBlockY == -1){
-                                this.moveBlockX = (int) ((e.getY()/gap));
-                                this.moveBlockY = (int) ((e.getX()/gap));
-                                System.out.println("Chosen positons to move to block to: " + this.moveBlockX + ", " + this.moveBlockY);
-                                Playable block = this.b.getBlockMoving();
-                                moveBlock(block, this.moveBlockX, this.moveBlockY);
-				this.first = true;
-                        }
-                }else{
-			this.secondX = (int) ((e.getY()/gap));
-			this.secondY = (int) ((e.getX()/gap));
-			secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
-			if(!this.b.getBlockIsMoving()){
-				this.first = true;
-				this.b.nextTurn();
+		if(mouseEnabled){
+			System.out.println("Mouse is now enabled in Drawing Panel");
+			if(this.first){ //checks if it is the piece about to be moved
+				this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
+				this.firstY = (int) ((e.getX()/gap));
+				this.first = false;
+				firstCoordinatesSelected(this.firstX, this.firstY);
+			}else if(this.b.getBlockIsMoving()){
+				System.out.println("Block is moving: " + this.b.getBlockIsMoving());
+	                	if(this.moveBlockX == -1 && this.moveBlockY == -1){
+	                        	this.moveBlockX = (int) ((e.getY()/gap));
+	                        	this.moveBlockY = (int) ((e.getX()/gap));
+	                        	System.out.println("Chosen positons to move to block to: " + this.moveBlockX + ", " + this.moveBlockY);
+	                        	Playable block = this.b.getBlockMoving();
+	                        	moveBlock(block, this.moveBlockX, this.moveBlockY);
+					this.first = true;
+	                	}
+	        	}else{
+				this.secondX = (int) ((e.getY()/gap));
+				this.secondY = (int) ((e.getX()/gap));
+				secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
+				if(!this.b.getBlockIsMoving()){
+					this.first = true;
+					this.b.nextTurn();
+				}
 			}
+		}else{
+			System.out.println("Mouse is not enabled for this player");
 		}
 	}
 
 	private void firstCoordinatesSelected(int x, int y){
 		if(withInBoard(x, y)) { // Check bounds
-                        String col = this.b.getColour(x, y);
+                        String col = b.getColour(x, y);
 			if(!col.equals(" ")){//dont want to colour outside the allowed positions
                                 System.out.println("First set of positions at: " + x + ", " + y);
                                 System.out.println("Colour selected is: " + col);
-                                boolean allowed = this.b.selected(x, y);
+                                boolean allowed = b.selected(x, y); // this send the coordinates to the server, if they are allowed (only granted coordinates leave)
                                 System.out.println("Positon for the piece allowed:" + allowed);
                                 if(allowed){
-                                        repaint();
+					repaint();
                                 }else{
                                         this.first = true;
                                 }
@@ -127,7 +136,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 			String col = this.b.getColour(x2, y2);
 			if(!col.equals(" ")){
 				System.out.println("The moving position is " + x2 + ", " + y2);
-				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2);
+				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2); // the same here only granted coordinated get sent from board
 				if(playerMoved){
 					repaint();
 				}else{
