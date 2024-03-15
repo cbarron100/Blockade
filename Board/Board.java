@@ -28,6 +28,8 @@ public class Board{
 	private ClientSideConnection csc; //this is for connecting across netwroks
 	private int playerID;
 	private String boardOwner = "";
+	private boolean turnComplete;
+	private boolean diceRolled = false;
 
 	public Board(String name) {
 		this.name = name;
@@ -107,7 +109,7 @@ public class Board{
 	public Playable[][] getBoard(){
 		return this.board;
 	}
-	public boolean movePlayer(int x, int y, int newX, int newY){
+	public boolean movePlayer(int x, int y, int newX, int newY, boolean thisPlayer){
 		if(x == newX && y == newY){
 			return false;
 		}
@@ -124,9 +126,6 @@ public class Board{
 		if(colourToMove.equals(this.colourOrder[this.turn]) && !current.getColour().equals(destination.getColour())){
 			setPreviousGameStateToCurrent();
 			switch(destination.getColour()){
-				case " ":
-					System.out.println("Cannot move here, not part of the board!");
-					break;
 				case "White":
 					//update the borad 
 					current.setCurrentCoordinates(new int[]{newX, newY});
@@ -134,6 +133,12 @@ public class Board{
 					board[newX][newY].setColour(this.colourToMove);
 					//clear old position
 					board[x][y] = new Playable(x, y, "White");
+					//send coordinates to the other players
+					if(thisPlayer){
+						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
+						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+						turnComplete = true;
+					}
 					break;
 				case "Gold":
 					// Win situation
@@ -143,6 +148,12 @@ public class Board{
 					//old position empty
 					board[x][y] = new Playable(x, y, "White");
 					this.winner = true;
+					//send coordinates to the other players
+                                        if(thisPlayer){
+						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
+						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+						turnComplete = true;
+					}
 					System.out.println("WOOOOHOOOOO!!!!!!!!");
                                         System.out.println("YOU WIN!!");
 					break;
@@ -153,6 +164,11 @@ public class Board{
 					board[newX][newY].setColour(this.colourToMove);
 					board[x][y] = new Playable(x, y, "White");
 					this.blockToMove = true;
+					//send coordinates to the other players NEED TO MOVE BLOCK AS WELL
+                                        if(thisPlayer){
+						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
+						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+					}
 
 
 					//System.out.println("Where Would you like to move the block?");
@@ -166,14 +182,13 @@ public class Board{
 					board[newX][newY] = current;
 					board[newX][newY].setColour(this.colourToMove);
 					board[x][y] = new Playable(x, y, "White");
-
+					//send coordinates to the other players
+                                        if(thisPlayer){
+						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
+						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+						turnComplete = true;
+					}
 			}
-			String x1Str = Integer.toString(x);
-                	String y1Str = Integer.toString(y);
-                	String x2Str = Integer.toString(newX);
-                	String y2Str = Integer.toString(newY);
-                	csc.sendMovePlayerCoordinates(x1Str, y1Str, x2Str, y2Str);
-                	System.out.print("Sending Moving Coordinates to the other players: " + x1Str + ", " + y1Str + " and " + x2Str + ", " + y2Str);
                         return true; // move success
 		}else{
 			if(current.getColour().equals(destination.getColour())){ // player and destination are the same colour - you can't land on a team player
@@ -223,6 +238,7 @@ public class Board{
 			board[x][y] = block;
 			this.blockToMove = false;
 			this.blockMoving = null;
+			turnComplete = true;
 		}else{
 			System.out.println("Cannot place the block there!");
 		}
@@ -232,6 +248,15 @@ public class Board{
 	public void setPlayerNames(String[] names){
 		this.gamePlayers = names;
 	}
+
+	public void setTurnCompleteToFalse(){
+		turnComplete = false;
+	}
+
+	public boolean getTurnComplete(){
+		return turnComplete;
+	}
+
 
 	public String[] getColourOrder(){
 		return this.colourOrder;
@@ -256,37 +281,6 @@ public class Board{
 		this.turn++;
 	}
 
-	public ArrayList<String> setOrder(String[] players){ // takes a list of players and their names
-		String[] newPlayerOrder = new String[4];
-		ArrayList<Integer> preOrder = new ArrayList<Integer>(); // keeps track of what values have been rolled before so players afterwards can roll again
-		int index = 0;
-		ArrayList<String> rollMessages = new ArrayList<>(); // we will use this for the messages in the gui for transparency purposes
-		while(index < players.length){
-			int roll = rollDice(); // get the roll for this turn
-			rollMessages.add(players[index] + " Rolled: " + roll); // we will keep on adding messages each spot will be a new line
-			if(preOrder.contains(roll)){
-				rollMessages.add(players[index] + " to roll again! Number taken!");
-				index--; // this player has to roll again
-
-			}else{
-				preOrder.add(roll); // no one has that value so we can move on to the next player
-
-			}
-			index++;
-		}
-		ArrayList<Integer> order = new ArrayList<Integer>(preOrder); // copy the order so we keep track of where it is
-		Collections.sort(order, Collections.reverseOrder());// place it in descending order
-		int newIndex = 0;
-		for(int i : order){
-			int preIndex = preOrder.indexOf(i); // now we find the person who has the corresponding number and positon in the old list
-			newPlayerOrder[newIndex] = players[preIndex]; //they take place in a new list in the rolling order
-			newIndex++;
-		}
-		setPlayerNames(newPlayerOrder); // reset the order
-		return rollMessages;
-	}
-
-
 	public boolean hasWinner(){
 		return winner;
 	}
@@ -302,19 +296,25 @@ public class Board{
 		return Arrays.toString(this.gamePlayers);
 	}
 
-	public boolean selected(int x, int y){
+	public boolean selected(int x, int y, boolean thisPlayer){
 		boolean allows = this.isTurn(x, y);
-		if(allows){
+		if(allows && diceRolled){
 			this.colourToMove = this.board[x][y].getColour();
 			this.board[x][y].setColour("Pink");
                 	String xStr = Integer.toString(x); // convert to string
                 	String yStr = Integer.toString(y);
-        	        System.out.println("Sending Selected Coordinates to the other players: " + xStr + ", " + yStr);
-			csc.sendSelectedCoordinates(xStr , yStr); //send to server
+			if(thisPlayer){
+        	        	System.out.println("Sending Selected Coordinates to the other players: " + xStr + ", " + yStr);
+				csc.sendSelectedCoordinates(xStr , yStr); //send to server
+			}
 			return true;
 		}else{
 			return false;
 		}
+	}
+
+	public boolean haveDiceRolled(){
+		return diceRolled;
 	}
 
 	public boolean isTurn(int x, int y){
@@ -329,15 +329,35 @@ public class Board{
 		return Arrays.toString(this.colourOrder);
 	}
 
-	public int rollDice(){
-		this.rolledNumber = random.nextInt(6-1+1)+1;
+	public void setDiceRoll(int dr){
+		this.rolledNumber = dr;
+		diceRolled = true;
+		System.out.println("Dice Roll Set to: " + rolledNumber);
+	}
+
+	public int getDiceRoll(){
 		return this.rolledNumber;
 	}
+
+	public void rollDice(boolean roll){
+		if(roll){
+			this.rolledNumber = random.nextInt(6-1+1)+1;
+			diceRolled = true;
+			csc.sendDiceRoll(Integer.toString(rolledNumber));
+		}else{
+			this.rolledNumber = -1;
+			csc.sendDiceRoll("Skip");
+			turnComplete = true;
+		}
+	}
+
 	public String getPlayerTurn(){
 		return this.gamePlayers[this.turn];
 	}
 
-
+	public void setDiceRollToFalse(){
+		diceRolled = false;
+	}
 
 	public void setColourOrder(String[] colourOrder){
 		this.colourOrder = colourOrder;
@@ -426,6 +446,7 @@ public class Board{
 	public void recieveingSelectedFromOther(){
 		csc.receiveSelectedCoordinated();
 	}
+
 	public void receiveMoveCoordinates(){
 		csc.recieveMoveCoordinates();
 	}
@@ -443,6 +464,11 @@ public class Board{
 	public boolean mouseEnabled(){
 		String mouse = csc.readForMouse();
 		return Boolean.parseBoolean(mouse);
+	}
+
+
+	public void recieveDiceRoll(){
+		csc.recieveRollDice();
 	}
 
 	public void recieveNamesColours(){
@@ -535,19 +561,24 @@ public class Board{
 			}
 		}
 
-		public void sendMovePlayerCoordinates(String x1, String y1, String x2, String y2){
+		public void sendMovePlayerCoordinates(int x1, int y1, int x2, int y2){
                         try{
-                                writerOutput.println(x1);
+				String x1Str = Integer.toString(x1); // could convert somewhere else but then I would have to write this out more times than necessary
+	                        String y1Str = Integer.toString(y1);
+	                        String x2Str = Integer.toString(x2);
+	                        String y2Str = Integer.toString(y2);
+
+                                writerOutput.println(x1Str);
 				writerOutput.flush();
 
-                                writerOutput.println(y1);
+                                writerOutput.println(y1Str);
 				writerOutput.flush();
 
-				writerOutput.println(x2);
+				writerOutput.println(x2Str);
 				writerOutput.flush();
 
 
-                                writerOutput.println(y2);
+                                writerOutput.println(y2Str);
 				writerOutput.flush();
                                 System.out.println("Sent the coordinates for moving player");
                         }catch(RuntimeException ex){
@@ -576,25 +607,66 @@ public class Board{
 			}
 		}
 
+		public void sendDiceRoll(String roll){
+			try{
+				writerOutput.println(roll);
+				writerOutput.flush();
+				System.out.println("Sending Dice Roll: " + roll + " to server.");
+			}catch( RuntimeException ex){
+				System.out.println("IOException in sendDiceRoll()");
+			}
+		}
+
+		public void recieveRollDice(){
+			try{
+				String diceRollStr = readerInput.readLine();
+				System.out.println("Recieved Dice Roll: " + diceRollStr);
+				if(diceRollStr.equals("Skip")){
+					setDiceRoll(-1);
+				}else{
+					int diceRollInt = Integer.parseInt(diceRollStr);
+					setDiceRoll(diceRollInt);
+				}
+			} catch (IOException ex){
+				System.out.println("IOException in recieveRollDice()");
+			}
+		}
+
+
+
 		public void receiveSelectedCoordinated(){
 			try{
 				String otherPlayerX = readerInput.readLine();
 				String otherPlayerY = readerInput.readLine();
 				System.out.println("Recieved: " + otherPlayerX + ", " + otherPlayerY + " from someone else");
+				int xValue  = Integer.parseInt(otherPlayerX);
+				int yValue = Integer.parseInt(otherPlayerY);
+				selected(xValue, yValue, false);
+				System.out.println("Should show change");
 			} catch(IOException ex){
 				System.out.println("IOException from receiveSelectedCoordinated()");
 			}
 		}
 		public void recieveMoveCoordinates(){
                         try{
-                                String otherPlayerOldX = readerInput.readLine();
-                                String otherPlayerOldY = readerInput.readLine();
-				String otherPlayerNewX = readerInput.readLine();
-				String otherPlayerNewY = readerInput.readLine();
+                                String recievedOldX = readerInput.readLine();
+                                String recievedOldY = readerInput.readLine();
+				String recievedNewX = readerInput.readLine();
+				String recievedNewY = readerInput.readLine();
+
 				System.out.println("-----------------------------------");
-                                System.out.println("Recieved Moving from: " + otherPlayerOldX + ", " + otherPlayerOldY + " from someone else");
-				System.out.println("Recieved Moving to: " + otherPlayerNewX + ", " + otherPlayerNewY + " from someone else");
+                                System.out.println("Recieved Moving from: " + recievedOldX + ", " + recievedOldY + " from someone else");
+				System.out.println("Recieved Moving to: " + recievedNewX + ", " + recievedNewY + " from someone else");
                         	System.out.println("-----------------------------------");
+
+				int oldX = Integer.parseInt(recievedOldX);
+                                int oldY = Integer.parseInt(recievedOldY);
+                                int newX = Integer.parseInt(recievedNewX);
+                                int newY = Integer.parseInt(recievedNewY);
+
+				movePlayer(oldX, oldY, newX, newY, false);
+				System.out.println("Moved Player");
+
 			} catch(IOException ex){
                                 System.out.println("IOException from receiveSelectedCoordinated()");
                         }
@@ -602,7 +674,9 @@ public class Board{
 
 		public String readForMouse(){
 			try{
-				return readerInput.readLine();
+				String mouse = readerInput.readLine();
+				System.out.println("Recieved: " + mouse + " for enabling");
+				return mouse;
 			} catch(IOException ex){
 				System.out.println("IO Exception at readForMouse()");
 			}

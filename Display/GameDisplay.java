@@ -8,7 +8,6 @@ import javax.swing.JOptionPane;
 public class GameDisplay{
 
 	private static int size = 700;
-
 	public static void main(String[] args){
 		Board b = new Board("Game");
 		b.connectToServer();
@@ -55,18 +54,52 @@ public class GameDisplay{
 		System.out.println("-------------------------------");
 		System.out.println("Recieved all the names and colours! In order!");
 		info.addAllParts();
-		boolean mouseEn = b.mouseEnabled();
+		boolean interaction = b.mouseEnabled();
+		String[] turnOrder = b.getColourOrder();
+		String[] players = b.getPlayerNames();
+		int othersRoll;
 		while(true){
-			System.out.println("Allowed to move: " + mouseEn);
-			drawing.enableMouse(mouseEn);
-			if(mouseEn){
-				System.out.println("Find away to disable everyone else's container");
+			int turn = b.getTurn();
+			b.setTurnCompleteToFalse();
+			
+			System.out.println("---------------------------------");
+			System.out.println("This board belongs to player #" + b.getPlayerID());
+			System.out.println("Allowed to move: " + interaction);
+			drawing.enableMouse(interaction);
+			info.enableButtons(interaction);
+			System.out.println("Player to move is: " + players[turn] + " with colour " + turnOrder[turn]);
+			if(interaction){
+				System.out.println("Roll dice and choose who to move");
+				int rotation = 0;
+				while(interaction){
+					if(rotation == 0){
+						System.out.println("Waiting to finish turn");
+						rotation = 1;
+					}
+					interaction = b.mouseEnabled();
+				}
+				b.setDiceRollToFalse();
+				b.nextTurn();
+				System.out.println("Turn complete");
+				System.out.println("Next person to play: " + players[b.getTurn()]);
 			}else{
 				System.out.println("Cointainer Disabled, wating for others data");
-				b.recieveingSelectedFromOther();
-	                        b.receiveMoveCoordinates();
+				b.recieveDiceRoll();
+				System.out.println("Others rolled dice");
+				info.diceRollLabel(b.getPlayerTurn(), b.getDiceRoll());
+				if(b.getDiceRoll() == -1){
+					System.out.println("Player: " + b.getPlayerTurn() + " Skipped");
+				}else{
+					b.recieveingSelectedFromOther();
+		                        drawing.repaint();
+					b.receiveMoveCoordinates();
+					drawing.repaint();
+					b.nextTurn();
+					System.out.println("Next person to play: " + players[b.getTurn()]);
+				}
+				b.setDiceRollToFalse();
+				interaction = b.mouseEnabled();
 			}
-			mouseEn = b.mouseEnabled();
 		}
 	}
 }

@@ -75,14 +75,14 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	}
 	public boolean enableMouse(boolean en){
 		mouseEnabled = en;
-		System.out.println("Mouse enabled from Drawing Panel: " + en);
+		System.out.println("Mouse enabled from Drawing Panel: " + mouseEnabled);
 		return mouseEnabled;
 	}
         @Override
         public void mouseClicked(MouseEvent e){
 	// invoked when it has been clicked (pressed and released) on a component
-		if(mouseEnabled){
-			System.out.println("Mouse is now enabled in Drawing Panel");
+		if(mouseEnabled && b.haveDiceRolled()){
+			System.out.println("-----------------------------------");
 			if(this.first){ //checks if it is the piece about to be moved
 				this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
 				this.firstY = (int) ((e.getX()/gap));
@@ -104,7 +104,6 @@ public class DrawingPanel extends JPanel implements MouseListener{
 				secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
 				if(!this.b.getBlockIsMoving()){
 					this.first = true;
-					this.b.nextTurn();
 				}
 			}
 		}else{
@@ -118,8 +117,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 			if(!col.equals(" ")){//dont want to colour outside the allowed positions
                                 System.out.println("First set of positions at: " + x + ", " + y);
                                 System.out.println("Colour selected is: " + col);
-                                boolean allowed = b.selected(x, y); // this send the coordinates to the server, if they are allowed (only granted coordinates leave)
-                                System.out.println("Positon for the piece allowed:" + allowed);
+				boolean allowed = b.selected(x, y, true); // this send the coordinates to the server, if they are allowed (only granted coordinates leave)
                                 if(allowed){
 					repaint();
                                 }else{
@@ -136,7 +134,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 			String col = this.b.getColour(x2, y2);
 			if(!col.equals(" ")){
 				System.out.println("The moving position is " + x2 + ", " + y2);
-				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2); // the same here only granted coordinated get sent from board
+				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2, true); // the same here only granted coordinated get sent from board
 				if(playerMoved){
 					repaint();
 				}else{
@@ -156,7 +154,6 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	private void moveBlock(Playable block, int x, int y){
 		if(withInBoard(x, y)){
 			this.b.moveBlock(block, x, y);
-			this.b.nextTurn();
                 	resetCoordinatesThird();
 			repaint();
 		}
