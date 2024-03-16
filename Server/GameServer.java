@@ -179,6 +179,7 @@ public class GameServer{
 					String blockMoving = "";
 					String blockX = "";
 					String blockY = "";
+					String skipValue = "";
 					String turnStr = Integer.toString(turn);
 	                                // gets the index of the player in the original list to get the right ssc
 	                                player1.writer.println(turnStr);
@@ -193,8 +194,11 @@ public class GameServer{
 							//recieve roll value
 							rollValue = player1.recieveIntCoords();
 							sendSingleValue(indexNameNum, rollValue);
+							skipValue = player1.recieveIntCoords(); // has to come seperately
 							System.out.println("Server recieved Roll Value: " + rollValue);
-	                                                if(rollValue.equals("Skip")){
+							System.out.println("Server recieved Skip value: " + skipValue);
+							sendSingleValue(indexNameNum, skipValue);
+	                                                if(skipValue.equals("true")){
 								break;
 							}else{
 								// get the selelected values for the first move
@@ -230,8 +234,11 @@ public class GameServer{
 							//recieve roll value
                                                         rollValue = player2.recieveIntCoords();
 							sendSingleValue(indexNameNum, rollValue);
+							skipValue = player2.recieveIntCoords();
                                                         System.out.println("Server recieved Roll Value: " + rollValue);
-                                                        if(rollValue.equals("Skip")){
+							System.out.println("Server recieved Skip value: " + skipValue);
+							sendSingleValue(indexNameNum, skipValue);
+                                                        if(skipValue.equals("true")){
 								break;
 							}else{
 								// get the selelected values for the first move
@@ -270,8 +277,11 @@ public class GameServer{
 							//recieve roll value
                                                         rollValue = player3.recieveIntCoords();
                                                         sendSingleValue(indexNameNum, rollValue);
-                                                        System.out.println("Server recieved Roll Value: " + rollValue);
-							if(rollValue.equals("Skip")){
+                                                        skipValue = player3.recieveIntCoords();
+							System.out.println("Server recieved Roll Value: " + rollValue);
+							System.out.println("Server recieved Skip value: " + skipValue);
+							sendSingleValue(indexNameNum, skipValue);
+							if(skipValue.equals("true")){
 								break;
 							}else{
 								// get the selelected values for the first move
@@ -310,8 +320,11 @@ public class GameServer{
 	                                                //recieve roll value
                                                         rollValue = player4.recieveIntCoords();
                                                         sendSingleValue(indexNameNum, rollValue);
-                                                        System.out.println("Server recieved Roll Value: " + rollValue);
-							if(rollValue.equals("Skip")){
+                                                        skipValue = player4.recieveIntCoords();
+							System.out.println("Server recieved Roll Value: " + rollValue);
+							System.out.println("Server recieved Skip value: " + skipValue);
+							sendSingleValue(indexNameNum, skipValue);
+							if(skipValue.equals("true")){
 								break;
 							}else{
 								// get the selelected values for the first move
@@ -374,7 +387,7 @@ public class GameServer{
 
 						player4.writer.println(dr);
 						player4.writer.flush();
-						System.out.println("Roll dice value from Player 1: " + dr + " sent from server to other players");
+						System.out.println("Value from Player 1: " + dr + " sent from server to other players");
 						break;
 					case 1: // 2 should be missing
 						player1.writer.println(dr);
@@ -385,7 +398,7 @@ public class GameServer{
 
                                                 player4.writer.println(dr);
                                                 player4.writer.flush();
-                                                System.out.println("Roll dice value from Player 2: " + dr + " sent from server to other players");
+                                                System.out.println("Value from Player 2: " + dr + " sent from server to other players");
                                                 break;
 
 
@@ -398,7 +411,7 @@ public class GameServer{
 
                                                 player4.writer.println(dr);
                                                 player4.writer.flush();
-                                                System.out.println("Roll dice value from Player 3: " + dr + " sent from server to other players");
+                                                System.out.println("Value from Player 3: " + dr + " sent from server to other players");
                                                 break;
 
 
@@ -412,7 +425,7 @@ public class GameServer{
 
                                                 player2.writer.println(dr);
                                                 player2.writer.flush();
-                                                System.out.println("Roll dice value from Player 4: " + dr + " sent from server to other players");
+                                                System.out.println("Value from Player 4: " + dr + " sent from server to other players");
                                                 break;
 
 

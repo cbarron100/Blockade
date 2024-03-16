@@ -119,12 +119,14 @@ public class Board{
          // check if other colour is there
          // check if block is there
          // check if empty
+		Playable current = this.board[x][y];
+                Playable destination = this.board[newX][newY];
+
 		System.out.println("The person who is moving is " + this.gamePlayers[this.turn]);
 		System.out.println("The colour this person has is " + this.colourOrder[this.turn]);
-		Playable current = this.board[x][y];
-		Playable destination = this.board[newX][newY];
+		System.out.println("Destination colour is: " + destination.getColour());
+		System.out.println("The destination has the same colour: " + current.getColour().equals(destination.getColour()));
 		if(colourToMove.equals(this.colourOrder[this.turn]) && !current.getColour().equals(destination.getColour())){
-			setPreviousGameStateToCurrent();
 			switch(destination.getColour()){
 				case "White":
 					//update the borad 
@@ -311,6 +313,7 @@ public class Board{
                 	String xStr = Integer.toString(x); // convert to string
                 	String yStr = Integer.toString(y);
 			if(thisPlayer){
+				csc.sendSkipValue(Boolean.toString(false));
         	        	System.out.println("Sending Selected Coordinates to the other players: " + xStr + ", " + yStr);
 				csc.sendSelectedCoordinates(xStr , yStr); //send to server
 			}
@@ -437,6 +440,11 @@ public class Board{
 		}
 	}
 
+	public void recieveSkipValue(){
+		csc.recieveSkipValue();
+	}
+
+
 	public void setBoardOwner(String owner){
                 this.boardOwner = owner;
                 csc.sendName(owner);
@@ -486,7 +494,14 @@ public class Board{
 		csc.recieveMoveCoordinates();
 	}
 
-
+	public void sendSkipped(boolean skip){
+		String skipStr = Boolean.toString(true);
+		if(skip){
+			csc.sendSkipValue(skipStr);
+		}else{
+			csc.sendSkipValue(skipStr);
+		}
+	}
 
 	public void recieveNamesColours(){
 		csc.recieveOrders();
@@ -566,6 +581,7 @@ public class Board{
 		public void sendMovingBlock(String moving){
 			try{
 				writerOutput.println(moving);
+				writerOutput.flush();
 				System.out.println("Moving block: " + moving);
 			}catch (RuntimeException ex){
 				System.out.println("IOException in sendMovingBlock()");
@@ -586,6 +602,15 @@ public class Board{
 			}
 		}
 
+		public void sendSkipValue(String skip){
+			try{
+				writerOutput.println(skip);
+				writerOutput.flush();
+				System.out.println("Send to server skip value: " + skip);
+			} catch (RuntimeException ex){
+				System.out.println("IOException at sendSkipValue()");
+			}
+		}
 
 		public void sendMovePlayerCoordinates(int x1, int y1, int x2, int y2){
                         try{
@@ -640,6 +665,18 @@ public class Board{
 				System.out.println("Sending Dice Roll: " + roll + " to server.");
 			}catch( RuntimeException ex){
 				System.out.println("IOException in sendDiceRoll()");
+			}
+		}
+
+		public void recieveSkipValue(){
+			try{
+				String skipValueStr = readerInput.readLine();
+				System.out.println("Recieved Skip Value: " + skipValueStr);
+				if(skipValueStr.equals("true")){
+					setDiceRoll(-1);
+				}
+			}catch(IOException ex){
+				System.out.println("IOException in recieveSkipValue()");
 			}
 		}
 

@@ -133,7 +133,7 @@ public class InfoPanel extends JPanel{
                         public void actionPerformed(ActionEvent e){
 				if(enableButtons){
 	                                diceRollLabel(b.getPlayerTurn(), -1);
-					b.rollDice(false);
+					b.sendSkipped(false);
 	                        }else{
 					System.out.println("Buttons Disabled");
 				}

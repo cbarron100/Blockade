@@ -87,7 +87,9 @@ public class GameDisplay{
 				b.recieveDiceRoll();
 				System.out.println("Others rolled dice");
 				info.diceRollLabel(b.getPlayerTurn(), b.getDiceRoll());
+				b.recieveSkipValue();
 				if(b.getDiceRoll() == -1){
+					info.diceRollLabel(b.getPlayerTurn(), b.getDiceRoll());
 					System.out.println("Player: " + b.getPlayerTurn() + " Skipped");
 				}else{
 					b.recieveingSelectedFromOther();
