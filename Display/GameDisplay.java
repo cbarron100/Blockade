@@ -54,6 +54,7 @@ public class GameDisplay{
 		System.out.println("-------------------------------");
 		System.out.println("Recieved all the names and colours! In order!");
 		info.addAllParts();
+		b.recieveTurn();
 		boolean interaction = b.mouseEnabled();
 		String[] turnOrder = b.getColourOrder();
 		String[] players = b.getPlayerNames();
@@ -61,7 +62,6 @@ public class GameDisplay{
 		while(true){
 			int turn = b.getTurn();
 			b.setTurnCompleteToFalse();
-			
 			System.out.println("---------------------------------");
 			System.out.println("This board belongs to player #" + b.getPlayerID());
 			System.out.println("Allowed to move: " + interaction);
@@ -76,10 +76,10 @@ public class GameDisplay{
 						System.out.println("Waiting to finish turn");
 						rotation = 1;
 					}
+					b.recieveTurn();
 					interaction = b.mouseEnabled();
 				}
 				b.setDiceRollToFalse();
-				b.nextTurn();
 				System.out.println("Turn complete");
 				System.out.println("Next person to play: " + players[b.getTurn()]);
 			}else{
@@ -92,12 +92,18 @@ public class GameDisplay{
 				}else{
 					b.recieveingSelectedFromOther();
 		                        drawing.repaint();
-					b.receiveMoveCoordinates();
+					b.recieveMoveCoordinates();
 					drawing.repaint();
-					b.nextTurn();
+					// receive value for moving block
+					if(b.getBlockIsMoving()){
+						b.recieveBlockMovingCoordinatesFromOthers();
+						System.out.println("Block Should be moved");
+						drawing.repaint();
+					}
 					System.out.println("Next person to play: " + players[b.getTurn()]);
 				}
 				b.setDiceRollToFalse();
+				b.recieveTurn();
 				interaction = b.mouseEnabled();
 			}
 		}

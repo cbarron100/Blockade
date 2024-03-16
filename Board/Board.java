@@ -137,6 +137,8 @@ public class Board{
 					if(thisPlayer){
 						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
 						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+						csc.sendMovingBlock(Boolean.toString(false));
+                                                System.out.println("Sent Moving block coordinates" +  false);
 						turnComplete = true;
 					}
 					break;
@@ -168,9 +170,13 @@ public class Board{
                                         if(thisPlayer){
 						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
 						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+						// send true message that the block is going to be moved
+						csc.sendMovingBlock(Boolean.toString(true));
+						System.out.println("Sent Moving block coordinates: " + true);
+					}else{
+						csc.recieveBlockMovingCoordinates();
+						System.out.println("Moved Block from other player");
 					}
-
-
 					//System.out.println("Where Would you like to move the block?");
 					//int[] blockXY = messagesForInput(true);
 					//moveBlock(block, blockXY[0], blockXY[1]); // sub one for y due to structure of the display
@@ -186,6 +192,8 @@ public class Board{
                                         if(thisPlayer){
 						System.out.println("Sending Moving Coordinates to the other players: " + x + ", " + y + " and " + newX + ", " + newY);
 						csc.sendMovePlayerCoordinates(x, y, newX, newY);
+						csc.sendMovingBlock(Boolean.toString(false));
+                                                System.out.println("Sent Moving block coordinates" +  false);
 						turnComplete = true;
 					}
 			}
@@ -227,7 +235,7 @@ public class Board{
 		return ConsoleColours.WHITE;
 	}
 
-	public void moveBlock(Playable block, int x, int y){
+	public void moveBlock(Playable block, int x, int y, boolean thisPlayer){
 		int prevX = block.getCurrentX();
 		int prevY = block.getCurrentY();
 		System.out.println("Previous coordinates: " + prevX + ", " + prevY);
@@ -239,6 +247,11 @@ public class Board{
 			this.blockToMove = false;
 			this.blockMoving = null;
 			turnComplete = true;
+			if(thisPlayer){
+				String xStrBlock = Integer.toString(x);
+				String yStrBlock = Integer.toString(y);
+				csc.sendBlockCoordinates(xStrBlock, yStrBlock);
+			}
 		}else{
 			System.out.println("Cannot place the block there!");
 		}
@@ -271,14 +284,8 @@ public class Board{
 	}
 
 
-	public void nextTurn(){
-		if(this.rolledNumber == 6){
-                        this.turn--;
-                }
-		if(this.turn == 3){
-			this.turn = -1;
-		}
-		this.turn++;
+	public void setTurn(int t){
+		this.turn = t;
 	}
 
 	public boolean hasWinner(){
@@ -438,19 +445,19 @@ public class Board{
 	public void sendBlockMoveCoordinates(int bx, int by){
 		String bxStr = Integer.toString(bx);
 		String byStr = Integer.toString(by);
-		csc.blockCoordinates(bxStr, byStr);
+		csc.sendBlockCoordinates(bxStr, byStr);
 		System.out.println("Sending block coordinates: " + bxStr + ", " + byStr);
 	}
 
 
 	public void recieveingSelectedFromOther(){
-		csc.receiveSelectedCoordinated();
+		csc.receiveSelectedCoordinates();
 	}
 
-	public void receiveMoveCoordinates(){
-		csc.recieveMoveCoordinates();
-	}
 
+	public void recieveBlockMovingCoordinatesFromOthers(){
+		csc.recieveBlockMovingCoordinates();
+	}
 
 	public boolean canChooseColours(){
                 //System.out.println("Can this choose Colour: " + csc.canChooseColours());
@@ -466,10 +473,20 @@ public class Board{
 		return Boolean.parseBoolean(mouse);
 	}
 
+	public void recieveTurn(){
+		csc.recieveForTurn();
+	}
 
 	public void recieveDiceRoll(){
 		csc.recieveRollDice();
 	}
+
+
+	public void recieveMoveCoordinates(){
+		csc.recieveMoveCoordinates();
+	}
+
+
 
 	public void recieveNamesColours(){
 		csc.recieveOrders();
@@ -516,7 +533,6 @@ public class Board{
 			return false;
 		}
 
-
 		public void recieveOrders(){
 			try{
 				//recieving final orders for names and colours
@@ -547,7 +563,16 @@ public class Board{
 			}
 		}
 
-		public void blockCoordinates(String bx, String by){
+		public void sendMovingBlock(String moving){
+			try{
+				writerOutput.println(moving);
+				System.out.println("Moving block: " + moving);
+			}catch (RuntimeException ex){
+				System.out.println("IOException in sendMovingBlock()");
+			}
+		}
+
+		public void sendBlockCoordinates(String bx, String by){
 			try{
 				writerOutput.println(bx);
 				writerOutput.flush();
@@ -560,6 +585,7 @@ public class Board{
 				System.out.println("Error in blockCoordinates()");
 			}
 		}
+
 
 		public void sendMovePlayerCoordinates(int x1, int y1, int x2, int y2){
                         try{
@@ -634,7 +660,7 @@ public class Board{
 
 
 
-		public void receiveSelectedCoordinated(){
+		public void receiveSelectedCoordinates(){
 			try{
 				String otherPlayerX = readerInput.readLine();
 				String otherPlayerY = readerInput.readLine();
@@ -671,6 +697,32 @@ public class Board{
                                 System.out.println("IOException from receiveSelectedCoordinated()");
                         }
                 }
+
+		public void recieveBlockMovingCoordinates(){
+			try{
+				String blockXStr = readerInput.readLine();
+				String blockYStr = readerInput.readLine();
+				System.out.println("Recieved Block moving " + blockXStr + ", " + blockYStr);
+				Playable block = getBlockMoving();
+				int blockX = Integer.parseInt(blockXStr);
+				int blockY = Integer.parseInt(blockYStr);
+				moveBlock(block, blockX, blockY, false);
+				System.out.println("Moved block from someone else");
+			}catch(IOException ex){
+				System.out.println("IOExcpetion from recieveBlockMovingCoordinates()");
+			}
+		}
+
+		public void recieveForTurn(){
+			try{
+				String tStr = readerInput.readLine();
+				int t = Integer.parseInt(tStr);
+				setTurn(t);
+				System.out.println("Set turn: " + t);
+			} catch(IOException ex){
+				System.out.println("IOException for recieveTurn()");
+			}
+		}
 
 		public String readForMouse(){
 			try{

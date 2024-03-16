@@ -132,7 +132,7 @@ public class InfoPanel extends JPanel{
                         @Override
                         public void actionPerformed(ActionEvent e){
 				if(enableButtons){
-	                                diceRollLabel(b.getPlayerTurn(), b.getDiceRoll());
+	                                diceRollLabel(b.getPlayerTurn(), -1);
 					b.rollDice(false);
 	                        }else{
 					System.out.println("Buttons Disabled");

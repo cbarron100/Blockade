@@ -176,14 +176,23 @@ public class GameServer{
 					String xDestination = "";
 					String yDestination = "";
 					String rollValue = "";
+					String blockMoving = "";
+					String blockX = "";
+					String blockY = "";
+					String turnStr = Integer.toString(turn);
 	                                // gets the index of the player in the original list to get the right ssc
-	                                switch(indexNameNum){
+	                                player1.writer.println(turnStr);
+                                        player2.writer.println(turnStr);
+                                        player3.writer.println(turnStr);
+                                        player4.writer.println(turnStr);
+                                        System.out.println("Sent " + turnStr + " to all players");
+					switch(indexNameNum){
 	                                        case 0:
 	                                                // enable mouse listener
 	                                                enableMouseListener(indexNameNum);
 							//recieve roll value
 							rollValue = player1.recieveIntCoords();
-							sendRollValue(indexNameNum, rollValue);
+							sendSingleValue(indexNameNum, rollValue);
 							System.out.println("Server recieved Roll Value: " + rollValue);
 	                                                if(rollValue.equals("Skip")){
 								break;
@@ -193,7 +202,7 @@ public class GameServer{
 		                                                ySelected = player1.recieveIntCoords();
 		                                                // send the selceted to the other players
 								System.out.println("Server Recieved: " + xSelected + " and " + ySelected);
-								sendSelectedIntCoordsToOthers(indexNameNum, xSelected, ySelected);
+								sendPairIntToOthers(indexNameNum, xSelected, ySelected);
 								// have to revalue them for the structure, there is a better way but for now it works
 								xSelected = "";
 								ySelected = "";
@@ -205,14 +214,22 @@ public class GameServer{
 								System.out.println("Server has revieved destination coordinates: " + xDestination + ", " + yDestination);
 								sendMovingIntCoordsToOthers(indexNameNum, xSelected, ySelected, xDestination, yDestination);
 		                                                // if the player can move the block then get that as well
-		                                                break;
+		                                                blockMoving = player1.recieveIntCoords(); // for true false value
+								System.out.println("Block is moving: " + blockMoving);
+								if(blockMoving.equals("true")){
+									blockX = player1.recieveIntCoords();
+									blockY = player1.recieveIntCoords();
+									System.out.println("Recieved Moving Coordinates for block: " + blockX + ", " + blockY);
+									sendPairIntToOthers(indexNameNum, blockX, blockY);
+								}
+								break;
 							}
 	                                        case 1:
 	                                                // enable mouse listener
 	                                                enableMouseListener(indexNameNum);
 							//recieve roll value
                                                         rollValue = player2.recieveIntCoords();
-							sendRollValue(indexNameNum, rollValue);
+							sendSingleValue(indexNameNum, rollValue);
                                                         System.out.println("Server recieved Roll Value: " + rollValue);
                                                         if(rollValue.equals("Skip")){
 								break;
@@ -222,7 +239,7 @@ public class GameServer{
 	                                                        ySelected = player2.recieveIntCoords();
 	                                                        // send the selceted to the other players
 	                                                        System.out.println("Server Recieved: " + xSelected + " and " + ySelected);
-	                                                        sendSelectedIntCoordsToOthers(indexNameNum, xSelected, ySelected);
+	                                                        sendPairIntToOthers(indexNameNum, xSelected, ySelected);
 		                                                // send the selceted to the other players
 								// have to revalue them for the structure, there is a better way but for now it works
 
@@ -236,6 +253,15 @@ public class GameServer{
 	                                                        yDestination = player2.recieveIntCoords();
 	                                                        System.out.println("Server has revieved destination coordinates: " + xDestination + ", " + yDestination);
 	                                                        sendMovingIntCoordsToOthers(indexNameNum, xSelected, ySelected, xDestination, yDestination);
+								// if the player can move the block then get that as well
+                                                                blockMoving = player2.recieveIntCoords(); // for true false value
+                                                                System.out.println("Block is moving: " + blockMoving);
+                                                                if(blockMoving.equals("true")){
+                                                                        blockX = player2.recieveIntCoords();
+                                                                        blockY = player2.recieveIntCoords();
+                                                                        System.out.println("Recieved Moving Coordinates for block: " + blockX + ", " + blockY);
+                                                                        sendPairIntToOthers(indexNameNum, blockX, blockY);
+								}
 								break;
 							}
 	                                        case 2:
@@ -243,7 +269,7 @@ public class GameServer{
 	                                                enableMouseListener(indexNameNum);
 							//recieve roll value
                                                         rollValue = player3.recieveIntCoords();
-                                                        sendRollValue(indexNameNum, rollValue);
+                                                        sendSingleValue(indexNameNum, rollValue);
                                                         System.out.println("Server recieved Roll Value: " + rollValue);
 							if(rollValue.equals("Skip")){
 								break;
@@ -253,7 +279,7 @@ public class GameServer{
 	                                                        ySelected = player3.recieveIntCoords();
 	                                                        // send the selceted to the other players
 	                                                        System.out.println("Server Recieved: " + xSelected + " and " + ySelected);
-	                                                        sendSelectedIntCoordsToOthers(indexNameNum, xSelected, ySelected);
+	                                                        sendPairIntToOthers(indexNameNum, xSelected, ySelected);
 								// have to revalue them for the structure, there is a better way but for now it works
 								xSelected = "";
 								ySelected = "";
@@ -266,6 +292,15 @@ public class GameServer{
 	                                                        sendMovingIntCoordsToOthers(indexNameNum, xSelected, ySelected, xDestination, yDestination);
 
 	                                                	// if the player can move the block then get that as well
+								// if the player can move the block then get that as well
+                                                                blockMoving = player3.recieveIntCoords(); // for true false value
+                                                                System.out.println("Block is moving: " + blockMoving);
+                                                                if(blockMoving.equals("true")){
+                                                                        blockX = player3.recieveIntCoords();
+                                                                        blockY = player3.recieveIntCoords();
+                                                                        System.out.println("Recieved Moving Coordinates for block: " + blockX + ", " + blockY);
+                                                                        sendPairIntToOthers(indexNameNum, blockX, blockY);
+								}
 	                                                	break;
 							}
 
@@ -274,7 +309,7 @@ public class GameServer{
 	                                                enableMouseListener(indexNameNum);
 	                                                //recieve roll value
                                                         rollValue = player4.recieveIntCoords();
-                                                        sendRollValue(indexNameNum, rollValue);
+                                                        sendSingleValue(indexNameNum, rollValue);
                                                         System.out.println("Server recieved Roll Value: " + rollValue);
 							if(rollValue.equals("Skip")){
 								break;
@@ -284,7 +319,7 @@ public class GameServer{
 	                                                        ySelected = player4.recieveIntCoords();
 	                                                        // send the selceted to the other players
 	                                                        System.out.println("Server Recieved: " + xSelected + " and " + ySelected);
-								sendSelectedIntCoordsToOthers(indexNameNum, xSelected, ySelected);
+								sendPairIntToOthers(indexNameNum, xSelected, ySelected);
 		                                                // have to revalue them for the structure, there is a better way but for now it works
 								xSelected = "";
 	                                                        ySelected = "";
@@ -297,7 +332,16 @@ public class GameServer{
 	                                                        sendMovingIntCoordsToOthers(indexNameNum, xSelected, ySelected, xDestination, yDestination);
 
 		                                                // if the player can move the block then get that as well
-		                                                break;
+		                                                // if the player can move the block then get that as well
+                                                                blockMoving = player4.recieveIntCoords(); // for true false value
+                                                                System.out.println("Block is moving: " + blockMoving);
+                                                                if(blockMoving.equals("true")){
+                                                                        blockX = player4.recieveIntCoords();
+                                                                        blockY = player4.recieveIntCoords();
+                                                                        System.out.println("Recieved Moving Coordinates for block: " + blockX + ", " + blockY);
+                                                                        sendPairIntToOthers(indexNameNum, blockX, blockY);
+								}
+								break;
 							}
 	                                        default:
 	                                                break;
@@ -309,14 +353,16 @@ public class GameServer{
 						turn = -1;
 					}
 					turn++;
-		                }
+					System.out.println("Turn over " + newOrder[turn]);
+					System.out.println("----------------------------------------------------");
+				}
 			}catch (RuntimeException ex){
-				System.out.println("IOException at startGame()");
+				System.out.println("IOException at startGame()" + ex.getMessage());
 			}
 		}
 
 
-		public void sendRollValue(int i, String dr){
+		public void sendSingleValue(int i, String dr){
 			try{
 				switch(i){
 					case 0: // 1 should be missing
@@ -549,77 +595,77 @@ public class GameServer{
                 }
 
 
-		public void sendSelectedIntCoordsToOthers(int i, String x, String y){
+		public void sendPairIntToOthers(int i, String val1, String val2){
 			try{
 				switch(i){
 					case 0:
-						player2.writer.println(x);
+						player2.writer.println(val1);
 						player2.writer.flush();
 
-						player2.writer.println(y);
+						player2.writer.println(val2);
 						player2.writer.flush();
 
-						player3.writer.println(x);
+						player3.writer.println(val1);
 						player3.writer.flush();
 
-						player3.writer.println(y);
+						player3.writer.println(val2);
 						player3.writer.flush();
 
-						player4.writer.println(x);
+						player4.writer.println(val1);
 						player4.writer.flush();
-						player4.writer.println(y);
+						player4.writer.println(val2);
 						player4.writer.flush();
 						System.out.println("Server has sent from player 1 to other players");
 						break;
 					case 1:
-						player1.writer.println(x);
+						player1.writer.println(val1);
                                                 player1.writer.flush();
-                                                player1.writer.println(y);
+                                                player1.writer.println(val2);
                                                 player1.writer.flush();
 
-                                                player3.writer.println(x);
+                                                player3.writer.println(val1);
                                                 player3.writer.flush();
-                                                player3.writer.println(y);
+                                                player3.writer.println(val2);
                                                 player3.writer.flush();
 
-                                                player4.writer.println(x);
+                                                player4.writer.println(val1);
                                                 player4.writer.flush();
-                                                player4.writer.println(y);
+                                                player4.writer.println(val2);
                                                 player4.writer.flush();
 						System.out.println("Server has sent from player 2 to other players");
                                                 break;
 
 					case 2:
-						player1.writer.println(x);
+						player1.writer.println(val1);
                                                 player1.writer.flush();
-                                                player1.writer.println(y);
+                                                player1.writer.println(val2);
                                                 player1.writer.flush();
 
-                                                player2.writer.println(x);
+                                                player2.writer.println(val1);
                                                 player2.writer.flush();
-                                                player2.writer.println(y);
+                                                player2.writer.println(val2);
                                                 player2.writer.flush();
 
-                                                player4.writer.println(x);
+                                                player4.writer.println(val1);
                                                 player4.writer.flush();
-                                                player4.writer.println(y);
+                                                player4.writer.println(val2);
                                                 player4.writer.flush();
 						System.out.println("Server has sent from player 3 to other players");
                                                 break;
 					case 3:
-						player1.writer.println(x);
+						player1.writer.println(val1);
                                                 player1.writer.flush();
-                                                player1.writer.println(y);
+                                                player1.writer.println(val2);
                                                 player1.writer.flush();
 
-                                                player2.writer.println(x);
+                                                player2.writer.println(val1);
                                                 player2.writer.flush();
-                                                player2.writer.println(y);
+                                                player2.writer.println(val2);
                                                 player2.writer.flush();
 
-                                                player3.writer.println(x);
+                                                player3.writer.println(val1);
                                                 player3.writer.flush();
-                                                player3.writer.println(y);
+                                                player3.writer.println(val2);
                                                 player3.writer.flush();
 						System.out.println("Server has sent from player 4 to other players");
                                                 break;

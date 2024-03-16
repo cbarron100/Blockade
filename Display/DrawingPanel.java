@@ -29,6 +29,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 		this.setBackground(Color.LIGHT_GRAY);
 		this.setLayout(null);
 	}
+
 	@Override
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
@@ -153,7 +154,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 
 	private void moveBlock(Playable block, int x, int y){
 		if(withInBoard(x, y)){
-			this.b.moveBlock(block, x, y);
+			this.b.moveBlock(block, x, y, true);
                 	resetCoordinatesThird();
 			repaint();
 		}
