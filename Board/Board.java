@@ -124,9 +124,7 @@ public class Board{
 
 		System.out.println("The person who is moving is " + this.gamePlayers[this.turn]);
 		System.out.println("The colour this person has is " + this.colourOrder[this.turn]);
-		System.out.println("Destination colour is: " + destination.getColour());
-		System.out.println("The destination has the same colour: " + current.getColour().equals(destination.getColour()));
-		if(colourToMove.equals(this.colourOrder[this.turn]) && !current.getColour().equals(destination.getColour())){
+		if(colourToMove.equals(this.colourOrder[this.turn]) && !colourToMove.equals(destination.getColour())){
 			switch(destination.getColour()){
 				case "White":
 					//update the borad 
@@ -201,7 +199,7 @@ public class Board{
 			}
                         return true; // move success
 		}else{
-			if(current.getColour().equals(destination.getColour())){ // player and destination are the same colour - you can't land on a team player
+			if(colourToMove.equals(destination.getColour())){ // player and destination are the same colour - you can't land on a team player
 				System.out.println("You already have a colour there");
 				return false;
 			}else{
@@ -217,24 +215,6 @@ public class Board{
 
 	public void returnToPrevious(){
 		this.board = this.previousState;
-	}
-
-
-	private String colour(String str){
-
-		switch(str){
-			case "Blue":
-				return ConsoleColours.BLUE;
-			case "Green":
-				return ConsoleColours.GREEN;
-			case "Red":
-				return ConsoleColours.RED;
-			case "Yellow":
-				return ConsoleColours.YELLOW;
-			default:
-				break;
-		}
-		return ConsoleColours.WHITE;
 	}
 
 	public void moveBlock(Playable block, int x, int y, boolean thisPlayer){
@@ -271,6 +251,11 @@ public class Board{
 	public boolean getTurnComplete(){
 		return turnComplete;
 	}
+
+	public String getColourToMove(){
+		return this.colourToMove;
+	}
+
 
 
 	public String[] getColourOrder(){

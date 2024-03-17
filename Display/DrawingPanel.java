@@ -23,6 +23,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	private int moveBlockY = -1;
 	private int clickNumber = 0;
 	private boolean mouseEnabled = false;
+
 	public DrawingPanel(Board b){
 		this.addMouseListener(this);
 		this.b = b;
@@ -34,8 +35,6 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	protected void paintComponent(Graphics g){
 		super.paintComponent(g);
 		Graphics2D g2d =(Graphics2D) g;
-		// drawing goes here
-		//g2d.setColor(Color.RED);
 		Playable[][] state = this.b.getBoard();
 		int boardSize = state.length;
 		for(int y = 0; y < boardSize; y++){
@@ -60,7 +59,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 			case "Blue":
 				return Color.BLUE;
 			case "Green":
-				return Color.GREEN;
+				return new Color(0, 153, 0);
 			case "Yellow":
 				return Color.YELLOW;
 			case "Red":
@@ -84,12 +83,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	// invoked when it has been clicked (pressed and released) on a component
 		if(mouseEnabled && b.haveDiceRolled()){
 			System.out.println("-----------------------------------");
-			if(this.first){ //checks if it is the piece about to be moved
-				this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
-				this.firstY = (int) ((e.getX()/gap));
-				this.first = false;
-				firstCoordinatesSelected(this.firstX, this.firstY);
-			}else if(this.b.getBlockIsMoving()){
+			if(this.b.getBlockIsMoving()){
 				System.out.println("Block is moving: " + this.b.getBlockIsMoving());
 	                	if(this.moveBlockX == -1 && this.moveBlockY == -1){
 	                        	this.moveBlockX = (int) ((e.getY()/gap));
@@ -99,13 +93,17 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	                        	moveBlock(block, this.moveBlockX, this.moveBlockY);
 					this.first = true;
 	                	}
-	        	}else{
+	        	}else if(this.first){ //checks if it is the piece about to be moved
+                                this.firstX = (int) ((e.getY()/gap));// have to swap these due to strucutre of the Arrays in java
+                                this.firstY = (int) ((e.getX()/gap));
+                                this.first = false;
+                                firstCoordinatesSelected(this.firstX, this.firstY);
+
+			}else{
 				this.secondX = (int) ((e.getY()/gap));
 				this.secondY = (int) ((e.getX()/gap));
+				System.out.println("The current coordinates are: " + this.firstX + ", " + this.firstY + " and: " + this.secondX + ", " + this.secondY);
 				secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
-				if(!this.b.getBlockIsMoving()){
-					this.first = true;
-				}
 			}
 		}else{
 			System.out.println("Mouse is not enabled for this player");
@@ -120,6 +118,7 @@ public class DrawingPanel extends JPanel implements MouseListener{
                                 System.out.println("Colour selected is: " + col);
 				boolean allowed = b.selected(x, y, true); // this send the coordinates to the server, if they are allowed (only granted coordinates leave)
                                 if(allowed){
+					this.first = false;
 					repaint();
                                 }else{
                                         this.first = true;
@@ -133,16 +132,20 @@ public class DrawingPanel extends JPanel implements MouseListener{
 	private void secondCoordinatesSelected(int x1, int y1, int x2, int y2){
 		if(withInBoard(x2, y2)){
 			String col = this.b.getColour(x2, y2);
-			if(!col.equals(" ")){
-				System.out.println("The moving position is " + x2 + ", " + y2);
-				boolean playerMoved = this.b.movePlayer(x1, y1, x2, y2, true); // the same here only granted coordinated get sent from board
-				if(playerMoved){
+			String colToMove = this.b.getColourToMove();
+			if(!col.equals(" ") && !col.equals(colToMove)){
+				boolean playerMovedBoard = this.b.movePlayer(x1, y1, x2, y2, true); // the same here only granted coordinated get sent from board
+				if(playerMovedBoard){
+					System.out.println("The moving position is " + x2 + ", " + y2);
+					this.first = true;
 					repaint();
-				}else{
-					this.first = false;
+					resetCoordinatesFirst();
+                                	resetCoordinatesSecond();
 				}
-				resetCoordinatesFirst();
-				resetCoordinatesSecond();
+			}else{
+				System.out.println("Move failed from Drawing Panel secondCoordinatesSelected()");
+                                resetCoordinatesSecond();
+                                this.first = false;
 			}
 		}
 	}
@@ -162,10 +165,10 @@ public class DrawingPanel extends JPanel implements MouseListener{
 
 	private void resetCoordinatesFirst(){
 		this.firstX = -1;
-		this.secondX = -1;
+		this.firstY = -1;
 	}
 	private void resetCoordinatesSecond(){
-		this.firstY = -1;
+		this.secondX = -1;
 		this.secondY = -1;
 	}
 	private void resetCoordinatesThird(){
