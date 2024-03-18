@@ -3,6 +3,7 @@ package Display;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Path2D;
@@ -106,7 +107,9 @@ public class DrawingPanel extends JPanel implements MouseListener{
 				secondCoordinatesSelected(this.firstX, this.firstY, this.secondX, this.secondY);
 			}
 		}else{
-			System.out.println("Mouse is not enabled for this player");
+			if(e.getClickCount()%5 == 0){
+				JOptionPane.showMessageDialog(null, "Not your turn waiting for " + b.getPlayerTurn(), "Turn Information", JOptionPane.INFORMATION_MESSAGE);
+			}
 		}
 	}
 

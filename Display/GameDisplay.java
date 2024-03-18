@@ -2,34 +2,45 @@ package Display;
 
 import java.util.*;
 import Board.Board;
+
 import javax.swing.*;
 import java.awt.Color;
 import javax.swing.JOptionPane;
 public class GameDisplay{
 
-	private static int size = 700;
+	private static int size = 770;
 	public static void main(String[] args){
-		Board b = new Board("Game");
-		b.connectToServer();
-
 		JFrame frame = new JFrame(); // initialise the JFrame with the name as the input
-		int id = b.getPlayerID();
-		frame.setTitle("Barricade Game #" + id);
+		Board b = new Board("Barricade");
+
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(250 + 17*30, 18*30);
+		frame.setSize(size, size - 200);
+		frame.setBackground(new Color(204, 204, 204));
 		frame.setLayout(null);
 		frame.setResizable(false);
 
 		DrawingPanel drawing = new DrawingPanel(b);
 		InfoPanel info = new InfoPanel(b);
-		drawing.setBounds(250, 0, 17*30, 17*30);
-		info.setBounds(0,0, 250, 17*30);
+
+		drawing.setBounds(250, 10, 17*30, 17*30);
+		info.setBounds(0,10, 250, 17*30);
 		drawing.repaint();
 
 		frame.add(info);
 		frame.add(drawing);
 		frame.setVisible(true);
 
+		int setUpServer = JOptionPane.showConfirmDialog(frame, "Are you hosting the game?", "Hosting Question", JOptionPane.YES_NO_CANCEL_OPTION);
+		if(setUpServer == JOptionPane.YES_OPTION){
+                         JOptionPane.showMessageDialog(frame, "Start the Server", "Server Information", JOptionPane.INFORMATION_MESSAGE);
+                }else if(setUpServer == JOptionPane.NO_OPTION){
+                        String ipAddress = JOptionPane.showInputDialog(frame, "Write the IP Address", null);
+                        b.connectToServer(ipAddress);
+                }else{
+                        JOptionPane.showMessageDialog(frame, "See you!", "Stop Game Creation", JOptionPane.INFORMATION_MESSAGE);
+                }
+                int id = b.getPlayerID();
+		frame.setTitle("Barricade Game #" + id);
 
 		String name = JOptionPane.showInputDialog(frame, "What is your name?", null);
 		b.setBoardOwner(name);

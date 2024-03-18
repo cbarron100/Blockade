@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import Board.Board;
 import Players.*;
 import javax.swing.JPanel;
+import javax.swing.JOptionPane;
 import java.awt.Color;
 import javax.swing.JTextField;
 import javax.swing.JLabel;
@@ -111,7 +112,7 @@ public class InfoPanel extends JPanel{
 					b.rollDice(true);
 					diceRollLabel(b.getPlayerTurn(), b.getDiceRoll());
 				}else{
-					System.out.println("Buttons Disabled");
+					JOptionPane.showMessageDialog(null, "Buttons Disabled", "Turn Information", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 
@@ -135,7 +136,7 @@ public class InfoPanel extends JPanel{
 	                                diceRollLabel(b.getPlayerTurn(), -1);
 					b.sendSkipped(false);
 	                        }else{
-					System.out.println("Buttons Disabled");
+					JOptionPane.showMessageDialog(null, "Buttons Disabled", "Turn Information", JOptionPane.INFORMATION_MESSAGE);
 				}
 			}
 

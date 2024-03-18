@@ -495,8 +495,13 @@ public class Board{
                 System.out.println("Current Name list: " + printPlayerNames());
 	}
 
-	public void connectToServer(){
-		csc = new ClientSideConnection();
+	public void connectToServer(String add){
+		try{
+			InetAddress address = InetAddress.getByName(add); // method that creates an InetAddress object from a string
+			csc = new ClientSideConnection(address);
+		}catch(UnknownHostException ex){
+			System.out.println("UnknownHostException from connectTOServer()");
+		}
 	}
 
 	//client connection Inner class
@@ -507,10 +512,10 @@ public class Board{
 		private BufferedReader readerInput; // accepting data
 		private PrintWriter writerOutput; // sending data
 		private boolean chooseColours = false;
-		public ClientSideConnection(){
+		public ClientSideConnection(InetAddress ip){
 			System.out.println("----Client Created-----");
 			try{
-				socket = new Socket("localhost", 40000); // initiates the socket and connection to the server to localhost and port number 40000
+				socket = new Socket(ip, 40000); // initiates the socket and connection to the server to localhost and port number 40000
 				readerInput = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 				writerOutput = new PrintWriter(socket.getOutputStream(), true);
 				playerID = Integer.parseInt(readerInput.readLine()); // it gets sent as a String
