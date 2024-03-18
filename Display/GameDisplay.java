@@ -33,10 +33,10 @@ public class GameDisplay{
 		int setUpServer = JOptionPane.showConfirmDialog(frame, "Are you hosting the game?", "Hosting Question", JOptionPane.YES_NO_CANCEL_OPTION);
 		if(setUpServer == JOptionPane.YES_OPTION){
                         JOptionPane.showMessageDialog(frame, "Start the Server then press ok", "Server Information", JOptionPane.INFORMATION_MESSAGE);
-			b.connectToServer("localhost");
+			b.connectToServer();
                 }else if(setUpServer == JOptionPane.NO_OPTION){
                         String ipAddress = JOptionPane.showInputDialog(frame, "Write the IP Address", null);
-                        b.connectToServer(ipAddress);
+                        b.connectToServer();
                 }else{
                         JOptionPane.showMessageDialog(frame, "See you!", "Stop Game Creation", JOptionPane.INFORMATION_MESSAGE);
                 }

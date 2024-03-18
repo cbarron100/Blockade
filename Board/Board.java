@@ -495,9 +495,9 @@ public class Board{
                 System.out.println("Current Name list: " + printPlayerNames());
 	}
 
-	public void connectToServer(String add){
+	public void connectToServer(){
 		try{
-			InetAddress address = InetAddress.getByName(add); // method that creates an InetAddress object from a string
+			InetAddress address = InetAddress.getByName("localhost"); // method that creates an InetAddress object from a string
 			csc = new ClientSideConnection(address);
 		}catch(UnknownHostException ex){
 			System.out.println("UnknownHostException from connectTOServer()");
